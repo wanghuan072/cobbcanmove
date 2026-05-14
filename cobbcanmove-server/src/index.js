@@ -2,7 +2,7 @@ import 'dotenv/config'
 import express from 'express'
 import cors from 'cors'
 import crypto from 'node:crypto'
-import { getReady, qAll, qGet, qRun } from './db.js'
+import { getDatabaseUrl, getReady, qAll, qGet, qRun } from './db.js'
 
 const PORT = Number(process.env.PORT) || 3001
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'changeme'
@@ -12,7 +12,7 @@ const app = express()
 app.use(cors({ origin: true, credentials: true }))
 app.use(express.json({ limit: '64kb' }))
 
-/** @template T @param {(req: import('express').Request, res: import('express').Response) => T} fn */
+/** @param {(req: import('express').Request, res: import('express').Response) => unknown} fn */
 function ar(fn) {
   return (req, res, next) => {
     Promise.resolve(fn(req, res, next)).catch((e) => {
@@ -93,10 +93,10 @@ app.get(
     }
     const row = await qGet(
       `SELECT
-        COUNT(*) AS comment_count,
-        AVG(rating) AS avg_rating,
-        SUM(CASE WHEN rating IS NOT NULL THEN 1 ELSE 0 END) AS rating_count
-       FROM comments WHERE game_id = ? AND status = 'approved'`,
+        COUNT(*)::int AS comment_count,
+        AVG(rating)::float AS avg_rating,
+        COALESCE(SUM(CASE WHEN rating IS NOT NULL THEN 1 ELSE 0 END), 0)::int AS rating_count
+       FROM comments WHERE game_id = $1 AND status = 'approved'`,
       [gameId],
     )
     res.json({
@@ -116,8 +116,8 @@ app.get(
       return
     }
     const rows = await qAll(
-      `SELECT id, author_name AS authorName, body, rating, created_at AS createdAt
-       FROM comments WHERE game_id = ? AND status = 'approved'
+      `SELECT id, author_name AS "authorName", body, rating, created_at AS "createdAt"
+       FROM comments WHERE game_id = $1 AND status = 'approved'
        ORDER BY created_at DESC LIMIT 200`,
       [gameId],
     )
@@ -133,7 +133,7 @@ app.post(
       res.status(400).json({ error: 'Invalid game' })
       return
     }
-    const exists = await qGet('SELECT 1 AS ok FROM games WHERE id = ?', [gameId])
+    const exists = await qGet('SELECT 1 AS ok FROM games WHERE id = $1', [gameId])
     if (!exists) {
       res.status(404).json({ error: 'Game not found' })
       return
@@ -157,7 +157,8 @@ app.post(
 
     const status = AUTO_APPROVE ? 'approved' : 'pending'
     const result = await qRun(
-      `INSERT INTO comments (game_id, author_name, body, rating, status) VALUES (?, ?, ?, ?, ?)`,
+      `INSERT INTO comments (game_id, author_name, body, rating, status) VALUES ($1, $2, $3, $4, $5)
+       RETURNING id`,
       [gameId, authorName, body, rating, status],
     )
 
@@ -182,11 +183,11 @@ app.get(
       return
     }
     const sqlAll =
-      `SELECT c.id, c.game_id AS gameId, g.title AS gameTitle, c.author_name AS authorName, c.body, c.rating, c.status, c.created_at AS createdAt
+      `SELECT c.id, c.game_id AS "gameId", g.title AS "gameTitle", c.author_name AS "authorName", c.body, c.rating, c.status, c.created_at AS "createdAt"
        FROM comments c JOIN games g ON g.id = c.game_id ORDER BY c.created_at DESC LIMIT 500`
     const sqlFilter =
-      `SELECT c.id, c.game_id AS gameId, g.title AS gameTitle, c.author_name AS authorName, c.body, c.rating, c.status, c.created_at AS createdAt
-       FROM comments c JOIN games g ON g.id = c.game_id WHERE c.status = ? ORDER BY c.created_at DESC LIMIT 500`
+      `SELECT c.id, c.game_id AS "gameId", g.title AS "gameTitle", c.author_name AS "authorName", c.body, c.rating, c.status, c.created_at AS "createdAt"
+       FROM comments c JOIN games g ON g.id = c.game_id WHERE c.status = $1 ORDER BY c.created_at DESC LIMIT 500`
     const rows = status === 'all' ? await qAll(sqlAll) : await qAll(sqlFilter, [status])
     res.json({ comments: rows })
   }),
@@ -202,7 +203,7 @@ app.patch(
       res.status(400).json({ error: 'Invalid request' })
       return
     }
-    const r = await qRun(`UPDATE comments SET status = ? WHERE id = ?`, [nextStatus, id])
+    const r = await qRun(`UPDATE comments SET status = $1 WHERE id = $2`, [nextStatus, id])
     if (r.changes === 0) {
       res.status(404).json({ error: 'Not found' })
       return
@@ -220,17 +221,16 @@ app.delete(
       res.status(400).json({ error: 'Invalid id' })
       return
     }
-    await qRun(`DELETE FROM comments WHERE id = ?`, [id])
+    await qRun(`DELETE FROM comments WHERE id = $1`, [id])
     res.json({ ok: true })
   }),
 )
 
 app.get('/api/health', (_req, res) => {
-  const remote = !!(process.env.LIBSQL_URL || process.env.TURSO_DATABASE_URL)
   res.json({
     ok: true,
     vercel: process.env.VERCEL === '1',
-    db: remote ? 'turso' : 'file',
+    db: getDatabaseUrl() ? 'neon' : 'missing',
   })
 })
 

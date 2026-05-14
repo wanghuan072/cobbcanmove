@@ -1,104 +1,102 @@
-import { mkdirSync } from 'node:fs'
-import { dirname, join, resolve } from 'node:path'
-import { fileURLToPath, pathToFileURL } from 'node:url'
-import { createClient } from '@libsql/client'
+import pg from 'pg'
 
-const __dirname = dirname(fileURLToPath(import.meta.url))
+const { Pool } = pg
 
-let client
+let pool
 let readyPromise
 
-function resolveLibsqlUrl() {
-  const remote = process.env.LIBSQL_URL || process.env.TURSO_DATABASE_URL
-  if (remote) {
-    return { url: remote, authToken: process.env.LIBSQL_AUTH_TOKEN || process.env.TURSO_AUTH_TOKEN }
-  }
-
-  const configured = process.env.SQLITE_PATH
-  const defaultRelative =
-    process.env.VERCEL === '1' && !configured ? '/tmp/hub.sqlite' : join(__dirname, '../data/hub.sqlite')
-  const filePath = resolve(configured || defaultRelative)
-  mkdirSync(dirname(filePath), { recursive: true })
-  return { url: pathToFileURL(filePath).href }
+export function getDatabaseUrl() {
+  return (
+    process.env.DATABASE_URL ||
+    process.env.POSTGRES_URL ||
+    process.env.POSTGRES_PRISMA_URL ||
+    ''
+  ).trim()
 }
 
-async function initSchema() {
-  const c = client
-  await c.executeMultiple(`
+async function initDb() {
+  const url = getDatabaseUrl()
+  if (!url) {
+    throw new Error(
+      '缺少 DATABASE_URL：在 Neon 复制连接串写入 .env，或在 Vercel 环境变量中配置（见 .env.example）。',
+    )
+  }
+
+  pool = new Pool({
+    connectionString: url,
+    max: 10,
+    idleTimeoutMillis: 20_000,
+    connectionTimeoutMillis: 15_000,
+  })
+
+  await pool.query(`
     CREATE TABLE IF NOT EXISTS games (
       id INTEGER PRIMARY KEY,
       title TEXT NOT NULL
-    );
+    )
+  `)
 
+  await pool.query(`
     CREATE TABLE IF NOT EXISTS comments (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      game_id INTEGER NOT NULL,
+      id BIGSERIAL PRIMARY KEY,
+      game_id INTEGER NOT NULL REFERENCES games (id) ON DELETE CASCADE,
       author_name TEXT NOT NULL,
       body TEXT NOT NULL,
       rating INTEGER CHECK (rating IS NULL OR (rating >= 1 AND rating <= 5)),
-      status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending','approved','rejected')),
-      created_at TEXT NOT NULL DEFAULT (datetime('now')),
-      FOREIGN KEY (game_id) REFERENCES games(id)
-    );
-
-    CREATE INDEX IF NOT EXISTS idx_comments_game_status ON comments(game_id, status);
-    CREATE INDEX IF NOT EXISTS idx_comments_created ON comments(created_at DESC);
+      status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'approved', 'rejected')),
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    )
   `)
 
-  const seed = [
+  await pool.query(`
+    CREATE INDEX IF NOT EXISTS idx_comments_game_status ON comments (game_id, status)
+  `)
+
+  await pool.query(`
+    CREATE INDEX IF NOT EXISTS idx_comments_created ON comments (created_at DESC)
+  `)
+
+  const upsertGame = `INSERT INTO games (id, title) VALUES ($1, $2)
+    ON CONFLICT (id) DO UPDATE SET title = EXCLUDED.title`
+  for (const row of [
     [1, 'COBB CAN MOVE'],
     [2, 'The Freak Circus'],
     [3, 'Granny Horror'],
-  ]
-  for (const [id, title] of seed) {
-    await c.execute({
-      sql: 'INSERT OR REPLACE INTO games (id, title) VALUES (?, ?)',
-      args: [id, title],
-    })
+  ]) {
+    await pool.query(upsertGame, row)
   }
 }
 
-function getClient() {
-  if (!client) throw new Error('Database not initialized')
-  return client
+function getPool() {
+  if (!pool) throw new Error('Database pool not initialized')
+  return pool
 }
 
 export function getReady() {
   if (!readyPromise) {
-    readyPromise = (async () => {
-      const { url, authToken } = resolveLibsqlUrl()
-      client = createClient({ url, authToken: authToken || undefined })
-      await initSchema()
-    })()
+    readyPromise = initDb()
   }
   return readyPromise
 }
 
 /** @param {string} sql @param {unknown[]} [args] */
 export async function qGet(sql, args = []) {
-  const rs = await getClient().execute({ sql, args })
-  if (!rs.rows.length) return undefined
-  const row = rs.rows[0]
-  const o = {}
-  for (const c of rs.columns) o[c] = row[c]
-  return o
+  const r = await getPool().query(sql, args)
+  return r.rows[0]
 }
 
 /** @param {string} sql @param {unknown[]} [args] */
 export async function qAll(sql, args = []) {
-  const rs = await getClient().execute({ sql, args })
-  return rs.rows.map((row) => {
-    const o = {}
-    for (const c of rs.columns) o[c] = row[c]
-    return o
-  })
+  const r = await getPool().query(sql, args)
+  return r.rows
 }
 
 /** @param {string} sql @param {unknown[]} [args] */
 export async function qRun(sql, args = []) {
-  const rs = await getClient().execute({ sql, args })
+  const r = await getPool().query(sql, args)
+  const id = r.rows?.[0]?.id
   return {
-    changes: rs.rowsAffected,
-    lastInsertRowid: rs.lastInsertRowid != null ? Number(rs.lastInsertRowid) : 0,
+    changes: r.rowCount ?? 0,
+    lastInsertRowid: id != null ? Number(id) : 0,
   }
 }
