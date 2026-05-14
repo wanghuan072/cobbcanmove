@@ -338,8 +338,16 @@ async function loadAll() {
     const msg = e?.message || ''
     const net =
       msg === 'Failed to fetch' || msg.includes('NetworkError') || e?.name === 'TypeError'
+    const prodNoApi =
+      import.meta.env.PROD && !import.meta.env.VITE_API_URL
+    const prodApiButDown =
+      import.meta.env.PROD && Boolean(import.meta.env.VITE_API_URL)
     error.value = net
-      ? '无法连接评论 API（常见原因：只启动了前端、后端未在 3001 运行）。请在 cobbcanmove-web 目录执行 npm run dev（会同时启动网站与 API），或另开终端在 cobbcanmove-server 执行 npm start，然后刷新本页。'
+      ? prodNoApi
+        ? '线上未配置 VITE_API_URL：请在部署前端的平台（如 Vercel「前端」项目）→ Environment Variables 添加 VITE_API_URL=https://你的后端根地址（无末尾 /），保存后 Redeploy。'
+        : prodApiButDown
+          ? '无法连接评论 API：请确认后端已部署、HTTPS 可访问，且 VITE_API_URL 与后端实际域名一致（无末尾 /）。'
+          : '无法连接评论 API（常见原因：只启动了前端、后端未在 3001 运行）。请在 cobbcanmove-web 目录执行 npm run dev（会同时启动网站与 API），或另开终端在 cobbcanmove-server 执行 npm start，然后刷新本页。'
       : msg || 'Connection error. Start the API server on port 3001.'
   } finally {
     loading.value = false
@@ -370,7 +378,11 @@ async function submitReview() {
     await loadAll()
   } catch {
     submitErr.value =
-      '网络错误：请确认 API 已在端口 3001 运行（npm run dev 或 cobbcanmove-server 里 npm start）。'
+      import.meta.env.PROD && !import.meta.env.VITE_API_URL
+        ? '线上未配置 VITE_API_URL，评论无法提交。请在 Vercel 前端项目环境变量中配置后端地址并重新部署。'
+        : import.meta.env.PROD
+          ? '网络错误：请确认后端已上线且 VITE_API_URL 正确。'
+          : '网络错误：请确认 API 已在端口 3001 运行（npm run dev 或 cobbcanmove-server 里 npm start）。'
   } finally {
     submitting.value = false
   }
