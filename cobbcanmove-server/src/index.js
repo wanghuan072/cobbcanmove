@@ -1,8 +1,13 @@
-import 'dotenv/config'
+import { config as loadEnv } from 'dotenv'
+import { dirname, join } from 'node:path'
+import { fileURLToPath } from 'node:url'
 import express from 'express'
 import cors from 'cors'
 import crypto from 'node:crypto'
 import { getDatabaseUrl, getReady, qAll, qGet, qRun } from './db.js'
+
+const __serverRoot = join(dirname(fileURLToPath(import.meta.url)), '..')
+loadEnv({ path: join(__serverRoot, '.env') })
 
 const PORT = Number(process.env.PORT) || 3001
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'changeme'

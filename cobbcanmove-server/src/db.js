@@ -17,9 +17,15 @@ export function getDatabaseUrl() {
 async function initDb() {
   const url = getDatabaseUrl()
   if (!url) {
-    throw new Error(
-      '缺少 DATABASE_URL：在 Neon 复制连接串写入 .env，或在 Vercel 环境变量中配置（见 .env.example）。',
+    const hasKey = Boolean(
+      process.env.DATABASE_URL != null ||
+        process.env.POSTGRES_URL != null ||
+        process.env.POSTGRES_PRISMA_URL != null,
     )
+    const hint = hasKey
+      ? 'DATABASE_URL（或 POSTGRES_URL）已声明但为空，请在 cobbcanmove-server/.env 的等号后粘贴 Neon 的 postgresql:// 整段连接串并保存。'
+      : '未读取到 DATABASE_URL：请在本仓库的 cobbcanmove-server/.env 中添加一行 DATABASE_URL=postgresql://...（从 Neon 控制台复制）。若用 npm run dev 同时起前后端，请确认 .env 在 cobbcanmove-server 目录下。'
+    throw new Error(hint)
   }
 
   pool = new Pool({
