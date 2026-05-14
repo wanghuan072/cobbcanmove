@@ -1,42 +1,30 @@
 import { mkdirSync } from 'node:fs'
-import { dirname, resolve } from 'node:path'
-import { fileURLToPath } from 'node:url'
-import { createRequire } from 'node:module'
+import { dirname, join, resolve } from 'node:path'
+import { fileURLToPath, pathToFileURL } from 'node:url'
+import { createClient } from '@libsql/client'
 
-const require = createRequire(import.meta.url)
 const __dirname = dirname(fileURLToPath(import.meta.url))
 
-let db
+let client
+let readyPromise
 
-function resolveDbFilePath() {
-  const configured = process.env.SQLITE_PATH
-  if (process.env.VERCEL === '1') {
-    if (!configured) return '/tmp/hub.sqlite'
-    const abs = resolve(configured)
-    // 部署包目录只读；仅 /tmp 可写
-    if (abs.startsWith('/tmp')) return abs
-    return '/tmp/hub.sqlite'
+function resolveLibsqlUrl() {
+  const remote = process.env.LIBSQL_URL || process.env.TURSO_DATABASE_URL
+  if (remote) {
+    return { url: remote, authToken: process.env.LIBSQL_AUTH_TOKEN || process.env.TURSO_AUTH_TOKEN }
   }
-  return resolve(configured || resolve(__dirname, '../data/hub.sqlite'))
+
+  const configured = process.env.SQLITE_PATH
+  const defaultRelative =
+    process.env.VERCEL === '1' && !configured ? '/tmp/hub.sqlite' : join(__dirname, '../data/hub.sqlite')
+  const filePath = resolve(configured || defaultRelative)
+  mkdirSync(dirname(filePath), { recursive: true })
+  return { url: pathToFileURL(filePath).href }
 }
 
-/**
- * Game(1) ──< Comment：每条评论归属一个 game_id，可选 1–5 星评分
- */
-export function getDb() {
-  if (db) return db
-  const Database = require('better-sqlite3')
-  const path = resolveDbFilePath()
-  mkdirSync(dirname(path), { recursive: true })
-  db = new Database(path)
-  // Vercel 无服务器磁盘上 WAL 偶发问题，用 DELETE 更稳
-  db.pragma(process.env.VERCEL === '1' ? 'journal_mode = DELETE' : 'journal_mode = WAL')
-  initSchema(db)
-  return db
-}
-
-function initSchema(database) {
-  database.exec(`
+async function initSchema() {
+  const c = client
+  await c.executeMultiple(`
     CREATE TABLE IF NOT EXISTS games (
       id INTEGER PRIMARY KEY,
       title TEXT NOT NULL
@@ -57,8 +45,60 @@ function initSchema(database) {
     CREATE INDEX IF NOT EXISTS idx_comments_created ON comments(created_at DESC);
   `)
 
-  const seed = database.prepare(`INSERT OR REPLACE INTO games (id, title) VALUES (?, ?)`)
-  seed.run(1, 'COBB CAN MOVE')
-  seed.run(2, 'The Freak Circus')
-  seed.run(3, 'Granny Horror')
+  const seed = [
+    [1, 'COBB CAN MOVE'],
+    [2, 'The Freak Circus'],
+    [3, 'Granny Horror'],
+  ]
+  for (const [id, title] of seed) {
+    await c.execute({
+      sql: 'INSERT OR REPLACE INTO games (id, title) VALUES (?, ?)',
+      args: [id, title],
+    })
+  }
+}
+
+function getClient() {
+  if (!client) throw new Error('Database not initialized')
+  return client
+}
+
+export function getReady() {
+  if (!readyPromise) {
+    readyPromise = (async () => {
+      const { url, authToken } = resolveLibsqlUrl()
+      client = createClient({ url, authToken: authToken || undefined })
+      await initSchema()
+    })()
+  }
+  return readyPromise
+}
+
+/** @param {string} sql @param {unknown[]} [args] */
+export async function qGet(sql, args = []) {
+  const rs = await getClient().execute({ sql, args })
+  if (!rs.rows.length) return undefined
+  const row = rs.rows[0]
+  const o = {}
+  for (const c of rs.columns) o[c] = row[c]
+  return o
+}
+
+/** @param {string} sql @param {unknown[]} [args] */
+export async function qAll(sql, args = []) {
+  const rs = await getClient().execute({ sql, args })
+  return rs.rows.map((row) => {
+    const o = {}
+    for (const c of rs.columns) o[c] = row[c]
+    return o
+  })
+}
+
+/** @param {string} sql @param {unknown[]} [args] */
+export async function qRun(sql, args = []) {
+  const rs = await getClient().execute({ sql, args })
+  return {
+    changes: rs.rowsAffected,
+    lastInsertRowid: rs.lastInsertRowid != null ? Number(rs.lastInsertRowid) : 0,
+  }
 }
