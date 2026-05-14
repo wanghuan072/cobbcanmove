@@ -4,9 +4,9 @@
       <div class="container">
         <div class="hero-content">
           <p class="hero-eyebrow">Browser-first · rule-stacking horror</p>
-          <h1 id="hero-heading">{{ mainGame.title }}</h1>
+          <h1 id="hero-heading">{{ hubMain.title }}</h1>
           <p class="hero-lead">
-            {{ mainGame.description }}
+            {{ hubMain.description }}
           </p>
           <div class="hero-actions">
             <a class="btn-primary" href="#play">Play the demo</a>
@@ -27,15 +27,15 @@
       <div class="container">
         <div class="play-content">
           <header class="section-heading play-heading">
-            <h2 id="play-heading">Play {{ mainGame.title }} online</h2>
+            <h2 id="play-heading">Play {{ hubMain.title }} online</h2>
           </header>
           <div class="play-frame-wrap">
             <GameEmbedWithOverlay
               frame-variant="home"
-              :iframe-url="mainGame.iframeUrl"
-              :cover-image-url="mainGame.imageUrl"
-              :cover-image-alt="mainGame.imageAlt"
-              :game-title="mainGame.title"
+              :iframe-url="hubMain.iframeUrl"
+              :cover-image-url="hubMain.imageUrl"
+              :cover-image-alt="hubMain.imageAlt"
+              :game-title="hubMain.title"
             />
           </div>
         </div>
@@ -47,15 +47,15 @@
         <div class="about-split">
           <div class="about-copy">
             <header class="section-heading">
-              <h2 id="about-heading">About {{ mainGame.title }}</h2>
+              <h2 id="about-heading">About {{ hubMain.title }}</h2>
               <p>
                 A trap-adjacent roguelite that weaponizes clarity: you always see the pieces, yet the dungeon keeps
                 renegotiating how they connect.
               </p>
             </header>
-            <div class="about-rich" v-html="mainGame.detailsHtml" />
+            <div class="about-rich" v-html="hubMain.detailsHtml" />
             <ul class="tag-row" aria-label="Game tags">
-              <li v-for="tag in mainGame.tags" :key="tag">{{ tag }}</li>
+              <li v-for="tag in hubMain.tags" :key="tag">{{ tag }}</li>
             </ul>
           </div>
           <aside class="about-rail" aria-label="Player scores and reviews">
@@ -64,8 +64,8 @@
                 <span class="about-reviews-wrap-kicker">Player scores</span>
               </div>
               <GameReviewsSection
-                :game-id="mainGame.id"
-                :game-title="mainGame.title"
+                :game-id="hubMain.id"
+                :game-title="hubMain.title"
                 :preview-comment-limit="3"
               />
             </div>
@@ -78,7 +78,7 @@
       <div class="container">
         <div class="features-content">
           <header class="section-heading">
-            <h2 id="features-heading">Features — {{ mainGame.title }}</h2>
+            <h2 id="features-heading">Features — {{ hubMain.title }}</h2>
             <p>Design pillars borrowed from the best tension loops—then stretched until they creak.</p>
           </header>
           <div class="features-grid">
@@ -124,7 +124,7 @@
       <div class="container">
         <div class="shots-content">
           <header class="section-heading">
-            <h2 id="shots-heading">Screenshots — {{ mainGame.title }}</h2>
+            <h2 id="shots-heading">Screenshots — {{ hubMain.title }}</h2>
             <p>
               Mood boards for the hub layout—swap in real captures once you have export-safe stills from your
               build.
@@ -146,7 +146,7 @@
       <div class="container">
         <div class="howto-content">
           <header class="section-heading">
-            <h2 id="howto-heading">How to play {{ mainGame.title }}</h2>
+            <h2 id="howto-heading">How to play {{ hubMain.title }}</h2>
             <p>Four beats to get you moving without spoiling the surprises.</p>
           </header>
           <ol class="howto-steps">
@@ -187,7 +187,7 @@
       <div class="container">
         <div class="games-content">
           <header class="section-heading">
-            <h2 id="games-heading">More games on this hub — {{ mainGame.title }}</h2>
+            <h2 id="games-heading">More games on this hub — {{ hubMain.title }}</h2>
             <p>Every card opens that game’s full page—tap anywhere on the tile.</p>
           </header>
           <div class="games-grid">
@@ -195,7 +195,7 @@
               v-for="game in otherGames"
               :key="game.id"
               class="game-card"
-              :to="{ name: 'game-detail', params: { id: String(game.id) } }"
+              :to="{ name: 'game-detail', params: { slug: gamePathSlug(game) } }"
               :aria-label="`${game.title} — view game page`"
             >
               <div class="game-card-thumb">
@@ -222,7 +222,7 @@
       <div class="container">
         <div class="faq-content">
           <header class="section-heading">
-            <h2 id="faq-heading">FAQ — {{ mainGame.title }}</h2>
+            <h2 id="faq-heading">FAQ — {{ hubMain.title }}</h2>
             <p>Quick answers about playing, modes, and controls.</p>
           </header>
           <div class="faq-list">
@@ -238,35 +238,86 @@
 </template>
 
 <script setup>
-import { computed, onMounted } from 'vue'
+import { computed } from 'vue'
 import games from '@/data/games.js'
+import { gamePathSlug } from '@/gameRegistry.js'
 import GameReviewsSection from '@/components/GameReviewsSection.vue'
 import GameEmbedWithOverlay from '@/components/GameEmbedWithOverlay.vue'
 
-const mainGame = games[0]
-const otherGames = computed(() => games.slice(1))
-const screenshotList = mainGame.screenshots ?? []
-const mainFaq = mainGame.faq ?? []
+/** 首页主推「COBB CAN MOVE」正文（已从 games.js 迁出；TDK 在路由 meta） */
+const hubMain = Object.freeze({
+  id: 1,
+  title: 'COBB CAN MOVE',
+  iframeUrl: 'https://gamaverse.com/c/f/g/cobb-can-move-1749146982/',
+  description:
+    'Survival horror from above: survive a dark pixel dungeon, keep coal-fed light alive, and escape Cobb as the rules change every level.',
+  tags: ['Survival Horror', 'Roguelite', 'Pixel Art', 'Browser'],
+  publishDate: '2025',
+  imageUrl: '/images/about-img.webp',
+  imageAlt: 'Dark corridor with cold light, suggesting the in-game dungeon',
+  detailsHtml: `
+      <p><strong>COBB CAN MOVE</strong> is a top-down survival horror game in a dark pixel dungeon. You push through tight corridors while <strong>Cobb</strong> hunts you—each level can change how he senses and closes distance.</p>
+      <p>Carry <strong>burning coal</strong> to fight the dark and buy time. Complete objectives such as furnaces and breakers, then get out before the layout, alarms, or Cobb’s new tricks undo your plan.</p>
+      <h3>Modes</h3>
+      <ul>
+        <li><strong>Story Mode</strong> — structured runs that ramp threat and teach Cobb’s toolkit.</li>
+        <li><strong>Endless Mode</strong> — survival-focused loops with heavier randomization.</li>
+      </ul>
+      <h3>How to play</h3>
+      <ol>
+        <li>Click the game window, move with <strong>WASD</strong> or <strong>arrow keys</strong>, interact with <strong>E</strong> or <strong>Spacebar</strong> (gamepad supported when the build allows).</li>
+        <li>Keep light up, finish the objective, and move with sound and sightlines in mind—noise matters.</li>
+        <li>When behavior shifts—hearing, sight, smell, speed, reach, or doubles—assume your last safe route is wrong until you prove it again.</li>
+      </ol>
+    `,
+  screenshots: [
+    {
+      imageUrl: '/images/game01-01.webp',
+      imageAlt: 'Single warm light in a long dark corridor',
+      caption: 'Tight corridors: light is scarce and every step counts.',
+    },
+    {
+      imageUrl: '/images/game01-02.webp',
+      imageAlt: 'Foggy industrial interior',
+      caption: 'Pressure in the dark: objectives and hazards keep the route tense.',
+    },
+    {
+      imageUrl: '/images/game01-03.webp',
+      imageAlt: 'Small lights in darkness',
+      caption: 'Shifting rules: what felt safe can flip as Cobb gains new senses.',
+    },
+  ],
+  faq: [
+    {
+      question: 'Can I play in the browser?',
+      answerHtml:
+        '<p>Yes. Use the player on this page when the embed loads, or open the same session in a new tab. Some networks block iframes—try another network or browser if the frame stays blank.</p>',
+    },
+    {
+      question: 'What is the difference between Story and Endless?',
+      answerHtml:
+        '<p><strong>Story Mode</strong> strings together authored escalation so you learn systems in a deliberate order. <strong>Endless Mode</strong> leans on randomized rule mixes and survival pressure for players who want the dungeon to keep rewriting itself.</p>',
+    },
+    {
+      question: 'Why does Cobb feel different on the next floor?',
+      answerHtml:
+        '<p>Cobb’s kit can rotate—sound, sight, smell, speed, reach, duplication, and more. Treat each floor as a new contract: re-scout, re-light, and re-plan instead of autopiloting the last win.</p>',
+    },
+    {
+      question: 'What are the controls?',
+      answerHtml:
+        '<p>Default PC layout is <strong>WASD</strong> or <strong>arrows</strong> to move and <strong>E</strong> or <strong>Spacebar</strong> to interact. If prompts differ on-screen, follow the build’s own callouts.</p>',
+    },
+  ],
+})
+
+const otherGames = computed(() => games)
+const screenshotList = hubMain.screenshots ?? []
+const mainFaq = hubMain.faq ?? []
 
 function isPlayable(game) {
   return Boolean(game.iframeUrl || game.addressBar)
 }
-
-function applySeo() {
-  const { title, description, keywords } = mainGame.seo
-  document.title = title
-  const metaDesc = document.querySelector('meta[name="description"]')
-  if (metaDesc) metaDesc.setAttribute('content', description)
-  let metaKw = document.querySelector('meta[name="keywords"]')
-  if (!metaKw) {
-    metaKw = document.createElement('meta')
-    metaKw.setAttribute('name', 'keywords')
-    document.head.appendChild(metaKw)
-  }
-  metaKw.setAttribute('content', keywords)
-}
-
-onMounted(applySeo)
 </script>
 
 <style scoped>
@@ -421,7 +472,21 @@ main {
   grid-template-columns: 1fr;
 }
 
-@media (min-width: 900px) {
+@media (max-width: 1024px) {
+  .hero-section .container {
+    grid-template-columns: 1fr;
+  }
+
+  .hero-visual {
+    justify-self: center;
+  }
+
+  .shots-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1024px) {
   .about-split {
     grid-template-columns: minmax(0, 1fr) minmax(280px, 380px);
     column-gap: clamp(2rem, 4vw, 3.5rem);
@@ -546,13 +611,7 @@ main {
   line-height: 1.45;
 }
 
-@media (max-width: 900px) {
-  .shots-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
-@media (max-width: 560px) {
+@media (max-width: 768px) {
   .shots-grid {
     grid-template-columns: 1fr;
   }
@@ -677,13 +736,13 @@ main {
   margin: 0;
 }
 
-@media (max-width: 960px) {
+@media (max-width: 1024px) {
   .games-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
-@media (max-width: 600px) {
+@media (max-width: 768px) {
   .games-grid {
     grid-template-columns: 1fr;
   }

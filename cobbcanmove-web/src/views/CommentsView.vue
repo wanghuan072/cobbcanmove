@@ -18,15 +18,10 @@
 </template>
 
 <script setup>
-import { onMounted } from 'vue'
-import games from '@/data/games.js'
+import { HOME_HUB_GAME_ID } from '@/gameRegistry.js'
 import GameReviewsSection from '@/components/GameReviewsSection.vue'
 
-const featured = games[0]
-
-onMounted(() => {
-  document.title = 'Comments — COBB CAN MOVE Hub'
-})
+const featured = { id: HOME_HUB_GAME_ID, title: 'COBB CAN MOVE' }
 </script>
 
 <style scoped>

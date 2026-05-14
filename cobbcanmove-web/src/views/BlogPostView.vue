@@ -42,7 +42,7 @@
 </template>
 
 <script setup>
-import { computed, onBeforeUnmount, watch } from 'vue'
+import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { findPostBySlug } from '@/blogRegistry.js'
 
@@ -54,49 +54,6 @@ const post = computed(() => findPostBySlug(route.params.slug))
 const isExternalAddressBar = computed(() =>
   /^https?:\/\//i.test(String(post.value?.addressBar || '')),
 )
-
-let canonicalEl
-
-function applyPostSeo(p) {
-  if (!p?.seo) return
-  const { title, description, keywords } = p.seo
-  document.title = title
-  const metaDesc = document.querySelector('meta[name="description"]')
-  if (metaDesc) metaDesc.setAttribute('content', description)
-  let metaKw = document.querySelector('meta[name="keywords"]')
-  if (!metaKw) {
-    metaKw = document.createElement('meta')
-    metaKw.setAttribute('name', 'keywords')
-    document.head.appendChild(metaKw)
-  }
-  metaKw.setAttribute('content', keywords)
-
-  const origin = window.location.origin
-  const href = `${origin}${route.path}`
-  canonicalEl = document.querySelector('link[rel="canonical"][data-hub-page="blog-post"]')
-  if (!canonicalEl) {
-    canonicalEl = document.createElement('link')
-    canonicalEl.setAttribute('rel', 'canonical')
-    canonicalEl.setAttribute('data-hub-page', 'blog-post')
-    document.head.appendChild(canonicalEl)
-  }
-  canonicalEl.setAttribute('href', href)
-}
-
-watch(
-  () => post.value?.id,
-  (id) => {
-    if (id) applyPostSeo(post.value)
-  },
-  { immediate: true },
-)
-
-onBeforeUnmount(() => {
-  if (canonicalEl?.parentNode) {
-    canonicalEl.parentNode.removeChild(canonicalEl)
-    canonicalEl = undefined
-  }
-})
 </script>
 
 <style scoped>
@@ -142,7 +99,7 @@ main {
   align-items: start;
 }
 
-@media (min-width: 900px) {
+@media (min-width: 1024px) {
   .blog-hero-grid {
     grid-template-columns: 1fr minmax(260px, 42%);
   }

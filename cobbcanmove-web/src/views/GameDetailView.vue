@@ -24,18 +24,6 @@
           <ul class="tag-row" aria-label="Tags">
             <li v-for="tag in game.tags" :key="tag">{{ tag }}</li>
           </ul>
-          <div class="detail-title-actions">
-            <RouterLink class="btn-ghost" :to="{ name: 'home', hash: '#play' }">{{ hubMainGame.title }}</RouterLink>
-            <a
-              v-if="playTarget"
-              class="btn-primary"
-              :href="playTarget"
-              rel="noopener noreferrer"
-              target="_blank"
-            >
-              {{ game.iframeUrl ? 'Open in new tab' : 'Open official link' }}
-            </a>
-          </div>
         </div>
       </div>
     </section>
@@ -64,9 +52,9 @@
               An in-page player will appear here when a web build is linked. If a launch link is offered below, you can still open the game in a new tab.
             </p>
             <a
-              v-if="game.addressBar"
+              v-if="externalLaunchUrl"
               class="btn-primary"
-              :href="game.addressBar"
+              :href="externalLaunchUrl"
               rel="noopener noreferrer"
               target="_blank"
               >Launch game</a
@@ -137,19 +125,15 @@
 </template>
 
 <script setup>
-import { computed, watch } from 'vue'
+import { computed } from 'vue'
 import { useRoute } from 'vue-router'
-import games from '@/data/games.js'
-import { findGameById } from '@/gameRegistry.js'
+import { findGameBySlug } from '@/gameRegistry.js'
 import GameReviewsSection from '@/components/GameReviewsSection.vue'
 import GameEmbedWithOverlay from '@/components/GameEmbedWithOverlay.vue'
 
 const route = useRoute()
 
-/** 与 games.js 首条一致：主推 / 首页试玩 */
-const hubMainGame = games[0]
-
-const game = computed(() => findGameById(route.params.id))
+const game = computed(() => findGameBySlug(route.params.slug))
 const heroHeadingId = 'game-detail-title'
 
 const rawScreenshots = computed(() => game.value?.screenshots ?? [])
@@ -169,36 +153,17 @@ const displayShots = computed(() => {
 
 const faqList = computed(() => game.value?.faq ?? [])
 
-const playTarget = computed(() => {
-  const g = game.value
-  if (!g) return ''
-  if (g.iframeUrl) return g.iframeUrl
-  if (g.addressBar) return g.addressBar
-  return ''
-})
-
-function applyGameSeo(g) {
-  if (!g?.seo) return
-  const { title, description, keywords } = g.seo
-  document.title = title
-  const metaDesc = document.querySelector('meta[name="description"]')
-  if (metaDesc) metaDesc.setAttribute('content', description)
-  let metaKw = document.querySelector('meta[name="keywords"]')
-  if (!metaKw) {
-    metaKw = document.createElement('meta')
-    metaKw.setAttribute('name', 'keywords')
-    document.head.appendChild(metaKw)
-  }
-  metaKw.setAttribute('content', keywords)
+function isHttpUrl(s) {
+  return /^https?:\/\//i.test(String(s || '').trim())
 }
 
-watch(
-  () => game.value?.id,
-  (id) => {
-    if (id) applyGameSeo(game.value)
-  },
-  { immediate: true },
-)
+/** 无 iframe 时仅外链可点 */
+const externalLaunchUrl = computed(() => {
+  const g = game.value
+  if (!g || g.iframeUrl) return ''
+  const bar = String(g.addressBar || '').trim()
+  return isHttpUrl(bar) ? bar : ''
+})
 </script>
 
 <style scoped>
@@ -272,15 +237,7 @@ main {
   font-size: 0.85rem;
 }
 
-.detail-title-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.75rem;
-  margin-top: 1.25rem;
-}
-
-.btn-primary,
-.btn-ghost {
+.btn-primary {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -289,9 +246,6 @@ main {
   font-weight: 700;
   text-decoration: none;
   border: 1px solid transparent;
-}
-
-.btn-primary {
   background: linear-gradient(
     120deg,
     color-mix(in oklch, var(--color-accent) 85%, white),
@@ -303,16 +257,6 @@ main {
 
 .btn-primary:hover {
   color: oklch(12% 0.05 285);
-}
-
-.btn-ghost {
-  border-color: color-mix(in oklch, var(--color-text) 22%, transparent);
-  color: var(--color-text);
-}
-
-.btn-ghost:hover {
-  border-color: var(--color-accent);
-  color: var(--color-accent);
 }
 
 .detail-play-section {
@@ -512,13 +456,13 @@ code {
   color: var(--color-accent-2);
 }
 
-@media (max-width: 900px) {
+@media (max-width: 1024px) {
   .shots-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
-@media (max-width: 560px) {
+@media (max-width: 768px) {
   .shots-grid {
     grid-template-columns: 1fr;
   }

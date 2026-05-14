@@ -14,11 +14,11 @@ export default [
     imageUrl: '/images/game01-01.webp',
     imageAlt: 'Warm light in a long dark corridor—like peering down an in-game hallway',
     seo: {
-      title: 'How to play COBB CAN MOVE — controls, coal & objectives | Blog',
+      title: 'How to play COBB CAN MOVE — Controls & coal guide',
       description:
-        'Player-written COBB CAN MOVE guide: WASD, light and coal, furnaces and breakers, noise, and Cobb’s shifting rules in Story and Endless.',
+        'COBB CAN MOVE guide: WASD, coal, light, furnaces, breakers, noise vs Cobb, Story vs Endless. Tips for first clears—read here, then play the home embed.',
       keywords:
-        'COBB CAN MOVE, how to play, controls, coal, light, survival horror, Story Mode, Endless Mode, Cobb, guide',
+        'COBB CAN MOVE how to play, controls guide, coal and light, Story Mode, Endless Mode, Cobb hunter, survival horror tips, browser roguelite',
     },
     addressBar: 'cobb-can-move-how-to-play',
     detailsHtml: `
@@ -68,11 +68,11 @@ export default [
     imageUrl: '/images/game01-02.webp',
     imageAlt: 'Foggy industrial interior with harsh light—like a mid-story floor tightening the screws',
     seo: {
-      title: 'COBB CAN MOVE Story floors — Cobb rules by level | Blog',
+      title: 'COBB CAN MOVE Story — Cobb rules by floor | Guide',
       description:
-        'Player-facing tour of COBB CAN MOVE Story Mode: what each authored floor tends to teach about coal, light, noise, and Cobb’s rotating senses—hearing, smell, sight, reach, speed, duplication.',
+        'COBB CAN MOVE Story floors: hearing, smell, sight, reach, speed, duplication habits by floor. Player scout sheet—trust the in-game rule strip after patches.',
       keywords:
-        'COBB CAN MOVE, Story Mode, levels, Cobb, hearing, smell, sight, duplication, reach, survival horror, roguelite, guide',
+        'COBB CAN MOVE Story Mode, Cobb rules, floor guide, hearing smell sight, duplication, survival horror roguelite, level tips, patch notes mindset',
     },
     addressBar: 'cobb-story-floors-cobb-skills',
     detailsHtml: `

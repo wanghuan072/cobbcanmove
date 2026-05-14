@@ -5,7 +5,7 @@
         <p class="page-hero-eyebrow">Players · itch.io · flagship</p>
         <h1 id="download-hero-heading">COBB CAN MOVE Download</h1>
         <p class="page-hero-lead">
-          This hub is built around <strong>{{ mainGame.title }}</strong>. Want a desktop build, archives, or a
+          This hub is built around <strong>{{ flagship.title }}</strong>. Want a desktop build, archives, or a
           pay-what-you-want drop? The button below opens itch.io using the
           <strong>official game name plus curated keywords</strong> so you land on the right store page even when
           filenames change.
@@ -20,7 +20,7 @@
     <section class="download-list-section" aria-labelledby="download-list-heading">
       <div class="container">
         <header class="section-heading">
-          <h2 id="download-list-heading">{{ mainGame.title }} on itch.io</h2>
+          <h2 id="download-list-heading">{{ flagship.title }} on itch.io</h2>
           <p>
             Same survival-horror roguelite you can play in the browser from the home page—here we point players who
             prefer itch.io installs or bundles.
@@ -29,17 +29,17 @@
 
         <article class="download-card" aria-labelledby="dl-title-main">
           <div class="download-card-media">
-            <img :src="mainGame.imageUrl" :alt="mainGame.imageAlt" width="520" height="320" loading="lazy" />
+            <img :src="flagship.imageUrl" :alt="flagship.imageAlt" width="520" height="320" loading="lazy" />
           </div>
           <div class="download-card-body">
             <p class="download-card-meta">
-              <span>{{ mainGame.publishDate }}</span>
+              <span>{{ flagship.publishDate }}</span>
               <span class="pill pill-featured">Hub flagship</span>
             </p>
-            <h3 id="dl-title-main">{{ mainGame.title }}</h3>
-            <p class="download-card-desc">{{ mainGame.description }}</p>
+            <h3 id="dl-title-main">{{ flagship.title }}</h3>
+            <p class="download-card-desc">{{ flagship.description }}</p>
             <ul class="tag-row muted" aria-label="Game tags">
-              <li v-for="tag in mainGame.tags" :key="tag">{{ tag }}</li>
+              <li v-for="tag in flagship.tags" :key="tag">{{ tag }}</li>
             </ul>
             <div class="download-card-actions">
               <a
@@ -69,7 +69,7 @@
           <li>
             <h3>Why itch.io search instead of a single file link?</h3>
             <p>
-              Builds rotate on itch.io. A search using {{ mainGame.title }} and the genre keywords we maintain usually
+              Builds rotate on itch.io. A search using {{ flagship.title }} and the genre keywords we maintain usually
               finds the correct page when bundles or filenames change. When we have a stable store URL, the button
               switches to that direct page (set in hub data).
             </p>
@@ -88,138 +88,20 @@
 </template>
 
 <script setup>
-import { computed, onBeforeUnmount, onMounted } from 'vue'
-import { useRoute } from 'vue-router'
-import games from '@/data/games.js'
-import { getItchCtaLabel, getItchDownloadHref } from '@/lib/itchIo.js'
-
-const route = useRoute()
-const mainGame = games[0]
-
-const PAGE_TITLE = 'COBB CAN MOVE Download'
-const PAGE_DESC = `Get ${mainGame.title} on itch.io: curated search by game name and keywords for PC, browser, or pay-what-you-want builds—top-down survival horror hub flagship.`
-const PAGE_KEYWORDS = `${mainGame.title}, Cobb Can Move, download, itch.io, survival horror, roguelite, pixel art, indie game, PC, pay what you want`
-
-const itchUrl = computed(() => getItchDownloadHref(mainGame))
-const itchCtaLabel = computed(() => getItchCtaLabel(mainGame))
-
-function buildJsonLd(pageUrl, origin, game) {
-  const storeUrl = getItchDownloadHref(game)
-  const image = game.imageUrl?.startsWith('http')
-    ? game.imageUrl
-    : game.imageUrl?.startsWith('/')
-      ? `${origin}${game.imageUrl}`
-      : game.imageUrl || undefined
-  const videoGame = {
-    '@type': 'VideoGame',
-    '@id': `${pageUrl}#game`,
-    name: game.title,
-    description: game.description,
-    genre: game.tags,
-    url: storeUrl,
-    offers: {
-      '@type': 'Offer',
-      url: storeUrl,
-      availability: 'https://schema.org/OnlineOnly',
-    },
-  }
-  if (image) videoGame.image = image
-
-  const graph = [
-    {
-      '@type': 'WebPage',
-      '@id': `${pageUrl}#webpage`,
-      url: pageUrl,
-      name: PAGE_TITLE,
-      description: PAGE_DESC,
-      inLanguage: 'en',
-      about: { '@id': `${pageUrl}#game` },
-      isPartOf: {
-        '@type': 'WebSite',
-        name: 'COBB CAN MOVE Hub',
-        url: origin,
-      },
-    },
-    videoGame,
-  ]
-  return JSON.stringify({
-    '@context': 'https://schema.org',
-    '@graph': graph,
-  })
+/** 下载页主推（原 games.js 首条；itch 直达链维护在此） */
+const flagship = {
+  title: 'COBB CAN MOVE',
+  description:
+    'Survival horror from above: survive a dark pixel dungeon, keep coal-fed light alive, and escape Cobb as the rules change every level.',
+  tags: ['Survival Horror', 'Roguelite', 'Pixel Art', 'Browser'],
+  publishDate: '2025',
+  imageUrl: '/images/about-img.webp',
+  imageAlt: 'Dark corridor with cold light, suggesting the in-game dungeon',
 }
 
-let canonicalEl
-let ldScriptEl
-
-function applySeo() {
-  document.title = PAGE_TITLE
-  const metaDesc = document.querySelector('meta[name="description"]')
-  if (metaDesc) metaDesc.setAttribute('content', PAGE_DESC)
-  let metaKw = document.querySelector('meta[name="keywords"]')
-  if (!metaKw) {
-    metaKw = document.createElement('meta')
-    metaKw.setAttribute('name', 'keywords')
-    document.head.appendChild(metaKw)
-  }
-  metaKw.setAttribute('content', PAGE_KEYWORDS)
-
-  const ogTitle = document.querySelector('meta[property="og:title"]')
-  if (!ogTitle) {
-    const m = document.createElement('meta')
-    m.setAttribute('property', 'og:title')
-    document.head.appendChild(m)
-  }
-  document.querySelector('meta[property="og:title"]')?.setAttribute('content', PAGE_TITLE)
-
-  const ogDesc = document.querySelector('meta[property="og:description"]')
-  if (!ogDesc) {
-    const m = document.createElement('meta')
-    m.setAttribute('property', 'og:description')
-    document.head.appendChild(m)
-  }
-  document.querySelector('meta[property="og:description"]')?.setAttribute('content', PAGE_DESC)
-
-  const twCard = document.querySelector('meta[name="twitter:card"]')
-  if (!twCard) {
-    const m = document.createElement('meta')
-    m.setAttribute('name', 'twitter:card')
-    m.setAttribute('content', 'summary_large_image')
-    document.head.appendChild(m)
-  }
-
-  const origin = window.location.origin
-  const href = `${origin}${route.path}`
-  canonicalEl = document.querySelector('link[rel="canonical"][data-hub-page="download"]')
-  if (!canonicalEl) {
-    canonicalEl = document.createElement('link')
-    canonicalEl.setAttribute('rel', 'canonical')
-    canonicalEl.setAttribute('data-hub-page', 'download')
-    document.head.appendChild(canonicalEl)
-  }
-  canonicalEl.setAttribute('href', href)
-
-  if (!ldScriptEl) {
-    ldScriptEl = document.createElement('script')
-    ldScriptEl.type = 'application/ld+json'
-    ldScriptEl.setAttribute('data-hub-ld', 'download')
-    document.head.appendChild(ldScriptEl)
-  }
-  const pageUrl = `${origin}${route.path}`
-  ldScriptEl.textContent = buildJsonLd(pageUrl, origin, mainGame)
-}
-
-onMounted(applySeo)
-
-onBeforeUnmount(() => {
-  if (canonicalEl?.parentNode) {
-    canonicalEl.parentNode.removeChild(canonicalEl)
-    canonicalEl = undefined
-  }
-  if (ldScriptEl?.parentNode) {
-    ldScriptEl.parentNode.removeChild(ldScriptEl)
-    ldScriptEl = undefined
-  }
-})
+const ITCH_STORE_URL = 'https://abho.itch.io/cobb-can-move'
+const itchUrl = ITCH_STORE_URL
+const itchCtaLabel = 'Download COBB CAN MOVE on itch.io'
 </script>
 
 <style scoped>
@@ -272,7 +154,7 @@ main {
   background: color-mix(in oklch, var(--color-surface) 70%, black);
 }
 
-@media (min-width: 768px) {
+@media (min-width: 1024px) {
   .download-card {
     grid-template-columns: minmax(220px, 38%) 1fr;
   }

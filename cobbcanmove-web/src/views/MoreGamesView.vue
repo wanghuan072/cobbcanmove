@@ -6,7 +6,7 @@
           <p class="page-hero-eyebrow">Directory</p>
           <h1 id="page-hero-heading">More games</h1>
           <p class="page-hero-lead">
-            Everything hosted here in one place—featured title first, then the rest of the line-up.
+            Everything hosted here in one place—each card opens that game’s hub page. The whole card is clickable.
           </p>
         </div>
       </div>
@@ -17,17 +17,15 @@
         <div class="games-page-content">
           <header class="section-heading">
             <h2 id="games-page-heading">All listings</h2>
-            <p>The featured tile takes you home; every other tile opens its game page. The whole card is clickable.</p>
+            <p>Each tile opens its game page. The whole card is clickable.</p>
           </header>
           <div class="games-grid">
             <RouterLink
               v-for="game in allGames"
               :key="game.id"
               class="game-card"
-              :to="game.id === featuredId ? { name: 'home' } : { name: 'game-detail', params: { id: String(game.id) } }"
-              :aria-label="
-                game.id === featuredId ? `${game.title} — open hub home` : `${game.title} — view game page`
-              "
+              :to="{ name: 'game-detail', params: { slug: gamePathSlug(game) } }"
+              :aria-label="`${game.title} — view game page`"
             >
               <div class="game-card-thumb">
                 <img :src="game.imageUrl" :alt="game.imageAlt" width="520" height="320" loading="lazy" />
@@ -35,8 +33,7 @@
               <div class="game-card-body">
                 <div class="game-card-meta">
                   <span>{{ game.publishDate }}</span>
-                  <span v-if="game.id === featuredId" class="pill pill-featured">Featured</span>
-                  <span v-else-if="!isPlayable(game)" class="pill">Soon</span>
+                  <span v-if="!isPlayable(game)" class="pill">Soon</span>
                 </div>
                 <h3>{{ game.title }}</h3>
                 <p class="game-card-desc">{{ game.description }}</p>
@@ -53,19 +50,14 @@
 </template>
 
 <script setup>
-import { onMounted } from 'vue'
 import games from '@/data/games.js'
+import { gamePathSlug } from '@/gameRegistry.js'
 
 const allGames = games
-const featuredId = games[0]?.id
 
 function isPlayable(game) {
   return Boolean(game.iframeUrl || game.addressBar)
 }
-
-onMounted(() => {
-  document.title = 'More Games — COBB CAN MOVE Hub'
-})
 </script>
 
 <style scoped>
@@ -224,13 +216,13 @@ code {
   color: var(--color-accent-2);
 }
 
-@media (max-width: 960px) {
+@media (max-width: 1024px) {
   .games-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
-@media (max-width: 600px) {
+@media (max-width: 768px) {
   .games-grid {
     grid-template-columns: 1fr;
   }

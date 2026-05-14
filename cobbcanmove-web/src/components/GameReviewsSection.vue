@@ -830,7 +830,7 @@ onMounted(() => {
   align-items: start;
 }
 
-@media (min-width: 900px) {
+@media (min-width: 1024px) {
   .reviews-layout {
     grid-template-columns: minmax(200px, 260px) minmax(0, 1fr);
     gap: clamp(2rem, 4vw, 3rem);
@@ -956,7 +956,7 @@ onMounted(() => {
   gap: 1rem;
 }
 
-@media (min-width: 640px) {
+@media (min-width: 768px) {
   .reviews-form-grid {
     grid-template-columns: 1fr 1fr;
     grid-template-areas:

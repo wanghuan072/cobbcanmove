@@ -45,30 +45,9 @@
 </template>
 
 <script setup>
-import { onMounted } from 'vue'
 import { listPosts } from '@/blogRegistry.js'
 
 const posts = listPosts()
-
-const LIST_TITLE = 'Blog — COBB CAN MOVE Hub'
-const LIST_DESC =
-  'Hub blog: design notes and player-facing updates for COBB CAN MOVE—browser survival horror, rule rotation, and patch mindset.'
-const LIST_KW = 'COBB CAN MOVE, blog, hub updates, survival horror, indie game, patch notes'
-
-function applyListSeo() {
-  document.title = LIST_TITLE
-  const metaDesc = document.querySelector('meta[name="description"]')
-  if (metaDesc) metaDesc.setAttribute('content', LIST_DESC)
-  let metaKw = document.querySelector('meta[name="keywords"]')
-  if (!metaKw) {
-    metaKw = document.createElement('meta')
-    metaKw.setAttribute('name', 'keywords')
-    document.head.appendChild(metaKw)
-  }
-  metaKw.setAttribute('content', LIST_KW)
-}
-
-onMounted(applyListSeo)
 </script>
 
 <style scoped>

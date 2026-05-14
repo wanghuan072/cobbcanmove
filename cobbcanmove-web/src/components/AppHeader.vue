@@ -2,7 +2,7 @@
   <header class="site-header" role="banner">
     <div class="container site-header-inner">
       <RouterLink :to="{ name: 'home' }" class="site-logo" aria-label="COBB CAN MOVE hub home">
-        <span class="site-logo-mark" aria-hidden="true" />
+        <img src="/images/logo.png" alt="COBB CAN MOVE" class="site-logo-mark" aria-hidden="true" />
         <span class="site-logo-text">COBB CAN MOVE</span>
       </RouterLink>
       <button
@@ -88,6 +88,7 @@ function goHomeHash(hash) {
 }
 
 .site-header-inner {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -96,7 +97,7 @@ function goHomeHash(hash) {
 }
 
 .site-logo {
-  display: inline-flex;
+  display: flex;
   align-items: center;
   gap: 0.65rem;
   color: var(--color-text);
@@ -108,21 +109,9 @@ function goHomeHash(hash) {
   font-size: 1rem;
 }
 
-.site-logo:hover {
-  color: var(--color-text);
-}
-
-.site-logo-mark {
-  width: 2.25rem;
-  height: 2.25rem;
-  border-radius: 0.35rem;
-  background: conic-gradient(
-    from 210deg,
-    var(--color-accent),
-    var(--color-accent-2),
-    color-mix(in oklch, var(--color-bg) 40%, var(--color-accent))
-  );
-  box-shadow: 0 0 0 2px color-mix(in oklch, var(--color-text) 18%, transparent);
+.site-logo img{
+  width: 8rem;
+  height: auto;
 }
 
 .site-nav-list {
@@ -176,7 +165,7 @@ function goHomeHash(hash) {
   border: 0;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 1024px) {
   .nav-toggle {
     display: inline-flex;
   }
@@ -199,6 +188,25 @@ function goHomeHash(hash) {
     flex-direction: column;
     align-items: flex-start;
     gap: 0.75rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .site-logo {
+    font-size: 0.88rem;
+    gap: 0.45rem;
+  }
+
+  .site-logo img {
+    width: 5.5rem;
+  }
+
+  .nav-toggle {
+    padding: 0.5rem 0.6rem;
+  }
+
+  .nav-toggle-lines {
+    width: 1.2rem;
   }
 }
 </style>

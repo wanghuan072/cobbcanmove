@@ -1,91 +1,11 @@
 /**
- * 游戏数据（全站统一字段）
+ * 游戏数据（除首页主推外的列表/详情）
  * 每条：id, title, description, tags, publishDate, imageUrl, imageAlt,
- * iframeUrl, addressBar, itchIo?, seo, detailsHtml, screenshots, faq
- * — itchIo（可选）：仅主推游戏需要时配置 { storeUrl?, searchQuery? }；无 storeUrl 时用 searchQuery 或 title 作为 itch.io 搜索关键词
- * — reviewsEnabled（可选）：为 true 时游戏详情页显示评分与评论；仅主推游戏建议开启
+ * iframeUrl, addressBar（用于 URL 路径段，如 the-freak-circus）, seo, detailsHtml, screenshots, faq
+ * — reviewsEnabled（可选）：为 true 时游戏详情页显示评分与评论
  * — 富文本仅 detailsHtml（v-html）；截图 screenshots[]；FAQ 为 faq[{ question, answerHtml }]
  */
 export default [
-  {
-    id: 1,
-    title: 'COBB CAN MOVE',
-    iframeUrl: 'https://gamaverse.com/c/f/g/cobb-can-move-1749146982/',
-    description:
-      'Survival horror from above: survive a dark pixel dungeon, keep coal-fed light alive, and escape Cobb as the rules change every level.',
-    tags: ['Survival Horror', 'Roguelite', 'Pixel Art', 'Browser'],
-    publishDate: '2025',
-    imageUrl:
-      '/images/about-img.webp',
-    imageAlt: 'Dark corridor with cold light, suggesting the in-game dungeon',
-    seo: {
-      title: 'COBB CAN MOVE — Play Survival Horror Online',
-      description:
-        'Top-down survival horror: coal and light against the dark, shifting hunts from Cobb, Story and Endless modes—play in your browser.',
-      keywords:
-        'COBB CAN MOVE, Cobb Can Move, survival horror, roguelite, pixel art, browser game, Story Mode, Endless Mode',
-    },
-    addressBar: '/',
-    reviewsEnabled: true,
-    itchIo: {
-      storeUrl: 'https://abho.itch.io/cobb-can-move',
-      searchQuery: 'COBB CAN MOVE survival horror roguelite pixel art',
-    },
-    detailsHtml: `
-      <p><strong>COBB CAN MOVE</strong> is a top-down survival horror game in a dark pixel dungeon. You push through tight corridors while <strong>Cobb</strong> hunts you—each level can change how he senses and closes distance.</p>
-      <p>Carry <strong>burning coal</strong> to fight the dark and buy time. Complete objectives such as furnaces and breakers, then get out before the layout, alarms, or Cobb’s new tricks undo your plan.</p>
-      <h3>Modes</h3>
-      <ul>
-        <li><strong>Story Mode</strong> — structured runs that ramp threat and teach Cobb’s toolkit.</li>
-        <li><strong>Endless Mode</strong> — survival-focused loops with heavier randomization.</li>
-      </ul>
-      <h3>How to play</h3>
-      <ol>
-        <li>Click the game window, move with <strong>WASD</strong> or <strong>arrow keys</strong>, interact with <strong>E</strong> or <strong>Spacebar</strong> (gamepad supported when the build allows).</li>
-        <li>Keep light up, finish the objective, and move with sound and sightlines in mind—noise matters.</li>
-        <li>When behavior shifts—hearing, sight, smell, speed, reach, or doubles—assume your last safe route is wrong until you prove it again.</li>
-      </ol>
-    `,
-    screenshots: [
-      {
-        imageUrl: '/images/game01-01.webp',
-        imageAlt: 'Single warm light in a long dark corridor',
-        caption: 'Tight corridors: light is scarce and every step counts.',
-      },
-      {
-        imageUrl: '/images/game01-02.webp',
-        imageAlt: 'Foggy industrial interior',
-        caption: 'Pressure in the dark: objectives and hazards keep the route tense.',
-      },
-      {
-        imageUrl: '/images/game01-03.webp',
-        imageAlt: 'Small lights in darkness',
-        caption: 'Shifting rules: what felt safe can flip as Cobb gains new senses.',
-      },
-    ],
-    faq: [
-      {
-        question: 'Can I play in the browser?',
-        answerHtml:
-          '<p>Yes. Use the player on this page when the embed loads, or open the same session in a new tab. Some networks block iframes—try another network or browser if the frame stays blank.</p>',
-      },
-      {
-        question: 'What is the difference between Story and Endless?',
-        answerHtml:
-          '<p><strong>Story Mode</strong> strings together authored escalation so you learn systems in a deliberate order. <strong>Endless Mode</strong> leans on randomized rule mixes and survival pressure for players who want the dungeon to keep rewriting itself.</p>',
-      },
-      {
-        question: 'Why does Cobb feel different on the next floor?',
-        answerHtml:
-          '<p>Cobb’s kit can rotate—sound, sight, smell, speed, reach, duplication, and more. Treat each floor as a new contract: re-scout, re-light, and re-plan instead of autopiloting the last win.</p>',
-      },
-      {
-        question: 'What are the controls?',
-        answerHtml:
-          '<p>Default PC layout is <strong>WASD</strong> or <strong>arrows</strong> to move and <strong>E</strong> or <strong>Spacebar</strong> to interact. If prompts differ on-screen, follow the build’s own callouts.</p>',
-      },
-    ],
-  },
   {
     id: 2,
     title: 'The Freak Circus',
@@ -94,20 +14,16 @@ export default [
       'Psychological horror visual novel under circus lights: you drift into a night that refuses to end—between Pierrot’s silences and Harlequin’s grin, every choice tightens the wire.',
     tags: ['Visual Novel', "Ren'Py", 'Horror', 'Romance', 'Mature (18+)', 'Browser'],
     publishDate: '2025',
-    imageUrl: 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=960&q=80',
+    imageUrl: '/images/game02-01.webp',
     imageAlt: 'Colorful carnival string lights at night suggesting a circus setting',
     seo: {
-      title: 'The Freak Circus — Play the Visual Novel in Your Browser',
+      title: 'The Freak Circus — Play horror visual novel online',
       description:
-        'The Freak Circus: a psychological horror visual novel set in a surreal big top—Ren’Py web build, branching choices, and a slow-burn story around Pierrot and Harlequin. Mature audiences.',
+        'The Freak Circus browser VN: Ren’Py psychological horror, circus lights, branching choices, Pierrot and Harlequin. Mature 18+; hub page with embed and FAQ.',
       keywords:
-        'The Freak Circus, Garula, visual novel, RenPy, circus, psychological horror, romance, browser game, Pierrot, Harlequin',
+        'The Freak Circus, Garula, visual novel browser, RenPy web, psychological horror, circus horror, Pierrot, Harlequin, mature 18+, indie VN',
     },
-    addressBar: 'https://html-classic.itch.zone/html/16572088/index.html?v=1771780207',
-    itchIo: {
-      storeUrl: 'https://garula.itch.io/the-freak-circus',
-      searchQuery: 'The Freak Circus Garula visual novel',
-    },
+    addressBar: 'the-freak-circus',
     detailsHtml: `
       <p><strong>The Freak Circus</strong> is a <strong>psychological horror visual novel</strong> built in <strong>Ren’Py</strong> by indie creator <strong>Garula</strong>. Think less “jump-scare carnival ride” and more <strong>slow dread under tinsel</strong>: the lights are bright, the music never quite stops, and the people in costume remember your name a little too well.</p>
 
@@ -143,17 +59,17 @@ export default [
     `,
     screenshots: [
       {
-        imageUrl: 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=960&q=80',
+        imageUrl: '/images/game02-01.webp',
         imageAlt: 'Warm carnival lights against night sky',
         caption: 'Big-top glow: beauty and unease sharing the same wire.',
       },
       {
-        imageUrl: 'https://images.unsplash.com/photo-1503095396549-807759245b35?w=960&q=80',
+        imageUrl: '/images/game02-02.webp',
         imageAlt: 'Theater stage with red curtains and spotlights',
         caption: 'Curtain call energy—placeholder art until official stills ship.',
       },
       {
-        imageUrl: 'https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?w=960&q=80',
+        imageUrl: '/images/game02-03.webp',
         imageAlt: 'Concert crowd silhouettes and stage lights',
         caption: 'A crowd you can hear but cannot quite see—mood reference for the hub gallery.',
       },
@@ -179,19 +95,16 @@ export default [
       'First-person house escape in the browser: five days on the clock, creaky floorboards, and footsteps that answer your mistakes—hide, loot, solve, and slip out before she corners you again.',
     tags: ['Horror', 'Stealth', 'Escape', 'Survival', 'First-person', 'Browser'],
     publishDate: 'Web',
-    imageUrl: 'https://images.unsplash.com/photo-1509248961158-e54f6934749c?w=960&q=80',
+    imageUrl: '/images/game03.webp',
     imageAlt: 'Dark narrow corridor with a single cold light, suggesting a haunted house interior',
     seo: {
-      title: 'Granny Horror — Play the Escape House Survival Game Online',
+      title: 'Granny Horror — Escape house survival in browser',
       description:
-        'Play Granny Horror in your browser: stealth through a locked house, avoid noise that gives you away, search for tools and keys, and escape within five days—quick sessions, high tension.',
+        'Granny Horror in-browser: stealth house escape, five-day timer, keys and noise cues. Short survival horror via linked build—screenshots and FAQ on hub page.',
       keywords:
-        'Granny Horror, escape house, survival horror, stealth, browser game, first person, hide and seek, puzzle items, 1games',
+        'Granny Horror, escape house game, survival horror browser, stealth horror, five day escape, browser first person, hide and seek horror, 1games',
     },
-    addressBar: 'https://1games.io/game/granny-horror/',
-    itchIo: {
-      searchQuery: 'Granny survival horror escape house game',
-    },
+    addressBar: 'granny-horror',
     detailsHtml: `
       <p>If you already know the “wake up trapped—<strong>don’t get caught</strong>—<strong>find the way out</strong>” loop, <strong>Granny Horror</strong> will feel familiar in the best way: it is built around <strong>tension in short bursts</strong>, not a cinematic campaign. You are inside a hostile house where mistakes echo. The fun is learning the rules of the floorboards, the timing of patrols, and which objects are worth the risk to carry.</p>
 
@@ -229,17 +142,17 @@ export default [
     `,
     screenshots: [
       {
-        imageUrl: 'https://images.unsplash.com/photo-1509248961158-e54f6934749c?w=960&q=80',
+        imageUrl: '/images/game03-01.webp',
         imageAlt: 'Dark corridor with cold light',
         caption: 'Corridor tension: one wrong step turns a quiet plan into a chase.',
       },
       {
-        imageUrl: 'https://images.unsplash.com/photo-1519710164239-da123dc03ef4?w=960&q=80',
+        imageUrl: '/images/game03-02.webp',
         imageAlt: 'Dim interior with warm lamp light',
         caption: 'Small pools of light—where you read the room, and where you misread it.',
       },
       {
-        imageUrl: 'https://images.unsplash.com/photo-1513694203232-719a280e022f?w=960&q=80',
+        imageUrl: '/images/game03-03.webp',
         imageAlt: 'Old wooden door slightly open in shadow',
         caption: 'Doors as decisions: open for progress, or open for sound.',
       },
