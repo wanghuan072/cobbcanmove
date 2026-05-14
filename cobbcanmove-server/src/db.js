@@ -1,21 +1,36 @@
-import Database from 'better-sqlite3'
-import { mkdirSync, existsSync } from 'node:fs'
+import { mkdirSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { createRequire } from 'node:module'
 
+const require = createRequire(import.meta.url)
 const __dirname = dirname(fileURLToPath(import.meta.url))
 
 let db
+
+function resolveDbFilePath() {
+  const configured = process.env.SQLITE_PATH
+  if (process.env.VERCEL === '1') {
+    if (!configured) return '/tmp/hub.sqlite'
+    const abs = resolve(configured)
+    // 部署包目录只读；仅 /tmp 可写
+    if (abs.startsWith('/tmp')) return abs
+    return '/tmp/hub.sqlite'
+  }
+  return resolve(configured || resolve(__dirname, '../data/hub.sqlite'))
+}
 
 /**
  * Game(1) ──< Comment：每条评论归属一个 game_id，可选 1–5 星评分
  */
 export function getDb() {
   if (db) return db
-  const path = resolve(process.env.SQLITE_PATH || resolve(__dirname, '../data/hub.sqlite'))
+  const Database = require('better-sqlite3')
+  const path = resolveDbFilePath()
   mkdirSync(dirname(path), { recursive: true })
   db = new Database(path)
-  db.pragma('journal_mode = WAL')
+  // Vercel 无服务器磁盘上 WAL 偶发问题，用 DELETE 更稳
+  db.pragma(process.env.VERCEL === '1' ? 'journal_mode = DELETE' : 'journal_mode = WAL')
   initSchema(db)
   return db
 }

@@ -54,8 +54,6 @@ function parseRating(v) {
   return n
 }
 
-getDb()
-
 app.post('/api/admin/login', (req, res) => {
   const { password } = req.body || {}
   if (password !== ADMIN_PASSWORD) {
@@ -197,10 +195,15 @@ app.delete('/api/admin/comments/:id', requireAdmin, (req, res) => {
 })
 
 app.get('/api/health', (_req, res) => {
-  res.json({ ok: true })
+  res.json({ ok: true, vercel: process.env.VERCEL === '1' })
 })
 
-app.listen(PORT, () => {
-  console.log(`API http://localhost:${PORT}`)
-  console.log(`Admin login: POST /api/admin/login  AUTO_APPROVE_COMMENTS=${AUTO_APPROVE ? '1' : '0'}`)
-})
+if (process.env.VERCEL !== '1') {
+  getDb()
+  app.listen(PORT, () => {
+    console.log(`API http://localhost:${PORT}`)
+    console.log(`Admin login: POST /api/admin/login  AUTO_APPROVE_COMMENTS=${AUTO_APPROVE ? '1' : '0'}`)
+  })
+}
+
+export default app
