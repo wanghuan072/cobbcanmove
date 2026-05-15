@@ -58,7 +58,7 @@
               <li v-for="tag in hubMain.tags" :key="tag">{{ tag }}</li>
             </ul>
           </div>
-          <aside class="about-rail" aria-label="Player scores and reviews">
+          <aside id="reviews" class="about-rail" aria-label="Player scores and reviews">
             <div class="about-reviews-wrap">
               <div class="about-reviews-wrap-head">
                 <span class="about-reviews-wrap-kicker">Player scores</span>
