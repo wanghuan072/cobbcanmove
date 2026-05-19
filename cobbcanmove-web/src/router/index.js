@@ -1,17 +1,18 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { applyRouteSeo } from '@/seo/applyRouteSeo.js'
 import HomeView from '@/views/HomeView.vue'
-import MoreGamesView from '@/views/MoreGamesView.vue'
-import CommentsView from '@/views/CommentsView.vue'
-import DownloadView from '@/views/DownloadView.vue'
-import BlogListView from '@/views/BlogListView.vue'
-import BlogPostView from '@/views/BlogPostView.vue'
-import GameDetailView from '@/views/GameDetailView.vue'
-import PrivacyPolicyView from '@/views/Legal/PrivacyPolicyView.vue'
-import TermsOfServiceView from '@/views/Legal/TermsOfServiceView.vue'
-import CopyrightView from '@/views/Legal/CopyrightView.vue'
-import AboutUsView from '@/views/Legal/AboutUsView.vue'
-import ContactUsView from '@/views/Legal/ContactUsView.vue'
+
+const MoreGamesView = () => import('@/views/MoreGamesView.vue')
+const CommentsView = () => import('@/views/CommentsView.vue')
+const DownloadView = () => import('@/views/DownloadView.vue')
+const BlogListView = () => import('@/views/BlogListView.vue')
+const BlogPostView = () => import('@/views/BlogPostView.vue')
+const GameDetailView = () => import('@/views/GameDetailView.vue')
+const PrivacyPolicyView = () => import('@/views/Legal/PrivacyPolicyView.vue')
+const TermsOfServiceView = () => import('@/views/Legal/TermsOfServiceView.vue')
+const CopyrightView = () => import('@/views/Legal/CopyrightView.vue')
+const AboutUsView = () => import('@/views/Legal/AboutUsView.vue')
+const ContactUsView = () => import('@/views/Legal/ContactUsView.vue')
 import { findGameById, findGameBySlug, gamePathSlug } from '@/gameRegistry.js'
 import { findPostById, findPostBySlug, normalizeBlogSlug } from '@/blogRegistry.js'
 
