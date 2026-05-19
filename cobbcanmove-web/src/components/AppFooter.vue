@@ -4,7 +4,7 @@
       <div class="site-footer-grid">
         <div class="site-footer-brand">
           <RouterLink :to="{ name: 'home' }" class="site-footer-logo-link" aria-label="COBB CAN MOVE hub home">
-            <img src="/images/logo.png" alt="" class="site-footer-logo-mark" aria-hidden="true" />
+            <img src="/images/logo.webp" alt="" class="site-footer-logo-mark" aria-hidden="true" />
             <span class="site-footer-logo-text">COBB CAN MOVE Hub</span>
           </RouterLink>
           <p class="site-footer-note">

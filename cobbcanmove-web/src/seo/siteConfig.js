@@ -12,7 +12,7 @@ export const AUTHOR_NAME = 'COBB CAN MOVE Hub'
 export const SOCIAL_SAME_AS = []
 
 /** Open Graph / Twitter 默认图（与站内 logo / 主视觉一致） */
-export const DEFAULT_OG_IMAGE_PATH = '/images/logo.png'
+export const DEFAULT_OG_IMAGE_PATH = '/images/logo.webp'
 
 /** 无 @ 的 X 账号名；有品牌账号时再填 */
 export const TWITTER_SITE_HANDLE = ''
