@@ -7,7 +7,6 @@ import DownloadView from '@/views/DownloadView.vue'
 import BlogListView from '@/views/BlogListView.vue'
 import BlogPostView from '@/views/BlogPostView.vue'
 import GameDetailView from '@/views/GameDetailView.vue'
-import AdminView from '@/views/AdminView.vue'
 import PrivacyPolicyView from '@/views/Legal/PrivacyPolicyView.vue'
 import TermsOfServiceView from '@/views/Legal/TermsOfServiceView.vue'
 import CopyrightView from '@/views/Legal/CopyrightView.vue'
@@ -84,9 +83,9 @@ const router = createRouter({
       meta: {
         title: 'Comments & ratings — COBB CAN MOVE Hub | Player reviews',
         description:
-          'Read moderated comments and star ratings for hub games. Fair feedback on COBB CAN MOVE and curated titles helps players choose what to play next in-browser.',
+          'Read player comments and star ratings for COBB CAN MOVE. Fair feedback helps visitors decide whether to jump into the browser build.',
         keywords:
-          'COBB CAN MOVE, game comments, player ratings, reviews, moderated comments, hub feedback, survival horror games',
+          'COBB CAN MOVE, game comments, player ratings, reviews, hub feedback, survival horror games',
       },
     },
     {
@@ -192,18 +191,6 @@ const router = createRouter({
           'Email the COBB CAN MOVE Hub for broken links, accessibility, moderation, or legal mail. We are a fan hub—not every publisher’s official customer support line.',
         keywords:
           'Contact COBB CAN MOVE Hub, email support, accessibility, moderation, legal notice, site feedback, hub contact',
-      },
-    },
-    {
-      path: '/admin',
-      name: 'admin',
-      component: AdminView,
-      meta: {
-        title: 'Admin — Moderation | COBB CAN MOVE Hub',
-        description:
-          'Admin tools for moderating pending game comments on the COBB CAN MOVE Hub. Staff-only, not for search indexing—queues and moderation workflows live here.',
-        keywords:
-          'COBB CAN MOVE Hub admin, comment moderation, review queue, staff tools, noindex',
       },
     },
     {

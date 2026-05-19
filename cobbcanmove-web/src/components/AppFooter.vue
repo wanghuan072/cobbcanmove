@@ -21,7 +21,11 @@
             <li><RouterLink to="/comments">Comments</RouterLink></li>
             <li><RouterLink to="/download">Download (itch.io)</RouterLink></li>
             <li><RouterLink to="/blog">Blog</RouterLink></li>
-            <li><RouterLink to="/admin">Staff</RouterLink></li>
+            <li>
+              <a href="https://comment-web-one.vercel.app/" rel="noopener noreferrer" target="_blank"
+                >Comment admin</a
+              >
+            </li>
           </ul>
         </nav>
 

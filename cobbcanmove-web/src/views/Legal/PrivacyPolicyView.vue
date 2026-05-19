@@ -63,8 +63,8 @@
     <section>
       <h2>4. Sharing</h2>
       <p>
-        We may share data with infrastructure providers that host the site or database (for example a managed PostgreSQL
-        provider), strictly under agreements that require appropriate safeguards. We may disclose information if we
+        We may share data with infrastructure providers that host the site or the integrated comment API, strictly under
+        agreements that require appropriate safeguards. We may disclose information if we
         believe in good faith that disclosure is necessary to comply with legal process, to protect the rights or safety
         of users or the public, or to investigate abuse of the service.
       </p>

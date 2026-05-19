@@ -169,22 +169,6 @@ export function applyRouteSeo(route) {
   const canonicalUrl = absoluteUrl(path)
   const name = route.name
 
-  if (name === 'admin') {
-    const { title, description, keywords } = metaFromRoute(route)
-    const ld = toJsonLdGraph(organizationNode(), websiteNode())
-    applyDocumentSeo({
-      title,
-      description,
-      keywords,
-      canonicalUrl,
-      ogImageAbs: absoluteOgImage(),
-      ogType: 'website',
-      jsonLd: ld,
-      robots: 'noindex, nofollow',
-    })
-    return
-  }
-
   let keywords = DEFAULT_KEYWORDS
   let ogType = 'website'
   let ogImage = absoluteOgImage()

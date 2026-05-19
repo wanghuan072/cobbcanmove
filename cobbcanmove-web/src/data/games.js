@@ -2,7 +2,6 @@
  * 游戏数据（除首页主推外的列表/详情）
  * 每条：id, title, description, tags, publishDate, imageUrl, imageAlt,
  * iframeUrl, addressBar（用于 URL 路径段，如 the-freak-circus）, seo, detailsHtml, screenshots, faq
- * — reviewsEnabled（可选）：为 true 时游戏详情页显示评分与评论
  * — 富文本仅 detailsHtml（v-html）；截图 screenshots[]；FAQ 为 faq[{ question, answerHtml }]
  */
 export default [

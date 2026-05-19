@@ -4,13 +4,12 @@
       <div class="container">
         <h1 id="comments-heading">Player comments</h1>
         <p class="comments-lead">
-          Same review tools as the home page—focused on <strong>{{ featured.title }}</strong>.
+          Same review tools as the home page—focused on <strong>COBB CAN MOVE</strong>.
         </p>
       </div>
     </section>
     <GameReviewsSection
-      :game-id="featured.id"
-      :game-title="featured.title"
+      game-title="COBB CAN MOVE"
       :compact="false"
       section-id="comments-reviews"
     />
@@ -18,10 +17,7 @@
 </template>
 
 <script setup>
-import { HOME_HUB_GAME_ID } from '@/gameRegistry.js'
 import GameReviewsSection from '@/components/GameReviewsSection.vue'
-
-const featured = { id: HOME_HUB_GAME_ID, title: 'COBB CAN MOVE' }
 </script>
 
 <style scoped>

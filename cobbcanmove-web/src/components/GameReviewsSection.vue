@@ -48,7 +48,7 @@
             <legend class="visually-hidden">Your rating</legend>
             <div class="rc-stars" role="radiogroup" aria-label="Star rating">
               <label v-for="n in 5" :key="n" class="rc-star-label">
-                <input v-model.number="form.rating" type="radio" :name="'rating-' + gameId" :value="n" />
+                <input v-model.number="form.rating" type="radio" name="rating-compact" :value="n" />
                 <span class="rc-star" :class="{ on: form.rating >= n }" aria-hidden="true">★</span>
                 <span class="visually-hidden">{{ n }} star{{ n > 1 ? 's' : '' }}</span>
               </label>
@@ -75,7 +75,7 @@
           <div class="rc-feed-label">Latest</div>
           <p v-if="loading" class="rc-muted">Loading…</p>
           <template v-else>
-            <ul v-if="compactCommentsToShow.length" class="rc-list" :class="{ 'rc-list--preview': previewCommentLimit > 0 }">
+            <ul v-if="compactCommentsToShow.length" class="rc-list rc-list--preview">
               <li v-for="c in compactCommentsToShow" :key="c.id" class="rc-note">
                 <div class="rc-note-top">
                   <span class="rc-note-name">{{ c.authorName }}</span>
@@ -136,7 +136,7 @@
             <form class="reviews-form" @submit.prevent="submitReview">
               <div class="reviews-form-head">
                 <h3 class="reviews-form-title">Leave a note</h3>
-                <p class="reviews-form-hint">One pass, no account. Moderation may apply.</p>
+                <p class="reviews-form-hint">One pass, no account—your note appears after you submit.</p>
               </div>
               <div class="reviews-form-grid">
                 <label class="reviews-field reviews-field--name">
@@ -154,7 +154,7 @@
                   <legend class="reviews-field-label">Score</legend>
                   <div class="reviews-star-row" role="radiogroup" aria-label="Star rating">
                     <label v-for="n in 5" :key="n" class="reviews-star-label">
-                      <input v-model.number="form.rating" type="radio" :name="'rating-full-' + gameId" :value="n" />
+                      <input v-model.number="form.rating" type="radio" name="rating-full" :value="n" />
                       <span class="reviews-star" :class="{ on: form.rating >= n }" aria-hidden="true">★</span>
                       <span class="visually-hidden">{{ n }} star{{ n > 1 ? 's' : '' }}</span>
                     </label>
@@ -186,8 +186,8 @@
                 <span class="reviews-feed-rule" aria-hidden="true" />
               </div>
               <p v-if="loading" class="reviews-muted">Pulling threads…</p>
-              <ul v-else-if="commentsSortedNewestFirst.length" class="reviews-list">
-                <li v-for="c in commentsSortedNewestFirst" :key="c.id" class="reviews-item">
+              <ul v-else-if="comments.length" class="reviews-list">
+                <li v-for="c in comments" :key="c.id" class="reviews-item">
                   <div class="reviews-item-mark" aria-hidden="true">{{ initialFor(c.authorName) }}</div>
                   <div class="reviews-item-body">
                     <div class="reviews-item-top">
@@ -206,6 +206,15 @@
                 </li>
               </ul>
               <p v-else class="reviews-muted">No published reviews yet—your note can open the thread.</p>
+              <button
+                v-if="hasMore"
+                type="button"
+                class="reviews-load-more"
+                :disabled="loadingMore"
+                @click="loadMore"
+              >
+                {{ loadingMore ? 'Loading…' : 'Load more' }}
+              </button>
             </div>
           </div>
         </div>
@@ -215,12 +224,16 @@
 </template>
 
 <script setup>
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { RouterLink } from 'vue-router'
-import { apiUrl } from '@/lib/apiBase.js'
+import {
+  computeReviewStats,
+  connectionErrorMessage,
+  createReview,
+  listReviews,
+} from '@/lib/commentApi.js'
 
 const props = defineProps({
-  gameId: { type: Number, required: true },
   gameTitle: { type: String, default: '' },
   sectionId: { type: String, default: 'reviews' },
   /** 紧凑：与 iframe 并排侧栏；评论页传 false */
@@ -236,14 +249,20 @@ const props = defineProps({
 
 const headingId = 'reviews-heading'
 
+const PAGE_SIZE_COMPACT = 50
+const PAGE_SIZE_FULL = 20
+
 const stats = ref({ commentCount: 0, ratingCount: 0, avgRating: null })
 const comments = ref([])
 const loading = ref(true)
+const loadingMore = ref(false)
 const error = ref('')
 const form = ref({ authorName: '', body: '', rating: 5 })
 const submitting = ref(false)
 const submitMsg = ref('')
 const submitErr = ref('')
+const listPage = ref(1)
+const listTotal = ref(0)
 
 const avgDisplay = computed(() => {
   const v = stats.value.avgRating
@@ -280,25 +299,14 @@ const ringAriaLabel = computed(() => {
   return `Average rating ${v} out of 5 from ${cnt} ratings`
 })
 
-const commentsSortedNewestFirst = computed(() => {
-  const arr = [...comments.value]
-  arr.sort((a, b) => {
-    const ta = new Date(a.createdAt || 0).getTime()
-    const tb = new Date(b.createdAt || 0).getTime()
-    return tb - ta
-  })
-  return arr
-})
-
 const compactCommentsToShow = computed(() => {
-  if (!props.compact || !props.previewCommentLimit) return commentsSortedNewestFirst.value
-  return commentsSortedNewestFirst.value.slice(0, props.previewCommentLimit)
+  if (!props.compact || !props.previewCommentLimit) return comments.value
+  return comments.value.slice(0, props.previewCommentLimit)
 })
 
 const showViewAllCommentsButton = computed(() => {
   if (!props.compact || !props.previewCommentLimit) return false
-  const total = Math.max(stats.value.commentCount || 0, commentsSortedNewestFirst.value.length)
-  return total > props.previewCommentLimit
+  return listTotal.value > props.previewCommentLimit
 })
 
 function initialFor(name) {
@@ -316,84 +324,91 @@ function formatDate(iso) {
   }
 }
 
-async function loadStats() {
-  const res = await fetch(apiUrl(`/api/games/${props.gameId}/stats`))
-  if (!res.ok) throw new Error('Could not load ratings.')
-  stats.value = await res.json()
+const hasMore = computed(() => {
+  if (props.compact) return false
+  return comments.value.length < listTotal.value
+})
+
+function applyListResult(rows, total, reset) {
+  listTotal.value = total
+  if (reset) {
+    comments.value = rows
+  } else {
+    const seen = new Set(comments.value.map((c) => c.id))
+    for (const row of rows) {
+      if (!seen.has(row.id)) comments.value.push(row)
+    }
+  }
+  const local = computeReviewStats(comments.value)
+  stats.value = {
+    ...local,
+    commentCount: total,
+  }
 }
 
-async function loadComments() {
-  const res = await fetch(apiUrl(`/api/games/${props.gameId}/comments`))
-  if (!res.ok) throw new Error('Could not load comments.')
-  const data = await res.json()
-  comments.value = data.comments || []
+async function fetchPage(page, { append = false } = {}) {
+  const pageSize = props.compact ? PAGE_SIZE_COMPACT : PAGE_SIZE_FULL
+  const { reviews, total } = await listReviews({ page, pageSize })
+  applyListResult(reviews, total, !append)
+  listPage.value = page
 }
 
 async function loadAll() {
   loading.value = true
   error.value = ''
+  listPage.value = 1
   try {
-    await Promise.all([loadStats(), loadComments()])
+    await fetchPage(1, { append: false })
   } catch (e) {
-    const msg = e?.message || ''
-    const net =
-      msg === 'Failed to fetch' || msg.includes('NetworkError') || e?.name === 'TypeError'
-    const prodNoApi =
-      import.meta.env.PROD && !import.meta.env.VITE_API_URL
-    const prodApiButDown =
-      import.meta.env.PROD && Boolean(import.meta.env.VITE_API_URL)
-    error.value = net
-      ? prodNoApi
-        ? '线上未配置 VITE_API_URL：请在部署前端的平台（如 Vercel「前端」项目）→ Environment Variables 添加 VITE_API_URL=https://你的后端根地址（无末尾 /），保存后 Redeploy。'
-        : prodApiButDown
-          ? '无法连接评论 API：请确认后端已部署、HTTPS 可访问，且 VITE_API_URL 与后端实际域名一致（无末尾 /）。'
-          : '无法连接评论 API（常见原因：只启动了前端、后端未在 3001 运行）。请在 cobbcanmove-web 目录执行 npm run dev（会同时启动网站与 API），或另开终端在 cobbcanmove-server 执行 npm start，然后刷新本页。'
-      : msg || 'Connection error. Start the API server on port 3001.'
+    error.value = connectionErrorMessage(e)
   } finally {
     loading.value = false
+  }
+}
+
+async function loadMore() {
+  if (!hasMore.value || loadingMore.value) return
+  loadingMore.value = true
+  try {
+    await fetchPage(listPage.value + 1, { append: true })
+  } catch (e) {
+    error.value = connectionErrorMessage(e)
+  } finally {
+    loadingMore.value = false
   }
 }
 
 async function submitReview() {
   submitMsg.value = ''
   submitErr.value = ''
+  const body = form.value.body.trim()
+  const authorDisplayName = form.value.authorName.trim()
+  if (!authorDisplayName || !body) {
+    submitErr.value = 'Name and comment are required.'
+    return
+  }
+  if (body.length > 2000) {
+    submitErr.value = 'Comment is too long (max 2000 characters).'
+    return
+  }
+  const rating = Number(form.value.rating)
+  if (!Number.isInteger(rating) || rating < 1 || rating > 5) {
+    submitErr.value = 'Please choose a rating from 1 to 5 stars.'
+    return
+  }
+
   submitting.value = true
   try {
-    const res = await fetch(apiUrl(`/api/games/${props.gameId}/comments`), {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        authorName: form.value.authorName,
-        body: form.value.body,
-        rating: form.value.rating,
-      }),
-    })
-    const data = await res.json().catch(() => ({}))
-    if (!res.ok) {
-      submitErr.value = data.error || 'Submit failed.'
-      return
-    }
-    submitMsg.value = data.message || 'Thanks!'
+    await createReview({ body, rating, authorDisplayName })
+    submitMsg.value = 'Thanks—your review is live.'
     form.value.body = ''
     await loadAll()
-  } catch {
-    submitErr.value =
-      import.meta.env.PROD && !import.meta.env.VITE_API_URL
-        ? '线上未配置 VITE_API_URL，评论无法提交。请在 Vercel 前端项目环境变量中配置后端地址并重新部署。'
-        : import.meta.env.PROD
-          ? '网络错误：请确认后端已上线且 VITE_API_URL 正确。'
-          : '网络错误：请确认 API 已在端口 3001 运行（npm run dev 或 cobbcanmove-server 里 npm start）。'
+  } catch (e) {
+    submitErr.value = connectionErrorMessage(e)
   } finally {
     submitting.value = false
   }
 }
-
-watch(
-  () => props.gameId,
-  () => {
-    loadAll()
-  },
-)
 
 onMounted(() => {
   loadAll()
@@ -1240,5 +1255,27 @@ onMounted(() => {
   word-break: break-word;
   font-size: 0.96rem;
   line-height: 1.55;
+}
+
+.reviews-load-more {
+  margin-top: 0.75rem;
+  padding: 0.55rem 1.1rem;
+  border-radius: 999px;
+  border: 1px solid color-mix(in oklch, var(--color-text) 22%, transparent);
+  background: transparent;
+  color: var(--color-text);
+  font-weight: 700;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.reviews-load-more:hover:not(:disabled) {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+}
+
+.reviews-load-more:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
 }
 </style>

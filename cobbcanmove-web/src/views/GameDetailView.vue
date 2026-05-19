@@ -72,13 +72,6 @@
             <p>Overview, modes, and how it plays.</p>
           </header>
           <div class="detail-rich" v-html="game.detailsHtml" />
-          <div v-if="game.reviewsEnabled" class="detail-info-reviews-wrap">
-            <div class="detail-info-reviews-head">
-              <span class="detail-info-reviews-kicker">Player scores</span>
-              <RouterLink class="detail-info-reviews-link" :to="{ name: 'comments' }">Hub comments</RouterLink>
-            </div>
-            <GameReviewsSection :game-id="game.id" :game-title="game.title" />
-          </div>
         </div>
       </div>
     </section>
@@ -128,7 +121,6 @@
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { findGameBySlug } from '@/gameRegistry.js'
-import GameReviewsSection from '@/components/GameReviewsSection.vue'
 import GameEmbedWithOverlay from '@/components/GameEmbedWithOverlay.vue'
 
 const route = useRoute()
@@ -271,44 +263,6 @@ main {
 
 .detail-info-content {
   min-width: 0;
-}
-
-.detail-info-reviews-wrap {
-  margin-top: clamp(1.75rem, 3vw, 2.5rem);
-  padding: 0.75rem 0.85rem 0.9rem;
-  border-radius: 1rem;
-  border: 1px solid color-mix(in oklch, var(--color-text) 12%, transparent);
-  background: color-mix(in oklch, var(--color-surface) 55%, black);
-}
-
-.detail-info-reviews-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.5rem;
-  margin-bottom: 0.45rem;
-  padding-bottom: 0.4rem;
-  border-bottom: 1px solid color-mix(in oklch, var(--color-text) 10%, transparent);
-}
-
-.detail-info-reviews-kicker {
-  font-size: 0.68rem;
-  font-weight: 800;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: var(--color-accent-2);
-}
-
-.detail-info-reviews-link {
-  font-size: 0.72rem;
-  font-weight: 700;
-  color: var(--color-text-muted);
-  text-decoration: none;
-  white-space: nowrap;
-}
-
-.detail-info-reviews-link:hover {
-  color: var(--color-accent);
 }
 
 .section-heading {

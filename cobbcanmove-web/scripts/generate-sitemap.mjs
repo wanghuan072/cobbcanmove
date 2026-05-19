@@ -11,10 +11,9 @@ import { fileURLToPath } from 'node:url'
 import games from '../src/data/games.js'
 import blogPosts from '../src/data/blog.js'
 
-function slugSegmentFromAddressBar(addressBar) {
-  const t = String(addressBar ?? '').trim()
-  if (!t || t === '/') return ''
-  if (/^https?:\/\//i.test(t)) return ''
+function gamePathSlug(game) {
+  const t = String(game?.addressBar ?? '').trim()
+  if (!t || t === '/' || /^https?:\/\//i.test(t)) return ''
   return t.replace(/^\/+/, '').split('/').filter(Boolean)[0] || ''
 }
 
@@ -84,7 +83,7 @@ function collectSitemapEntries(siteOrigin) {
   }
 
   for (const g of games) {
-    const slug = slugSegmentFromAddressBar(g.addressBar)
+    const slug = gamePathSlug(g)
     if (!slug) continue
     entries.push({
       loc: new URL(`/games/${slug}`, `${base}/`).href,
@@ -124,8 +123,6 @@ function buildRobotsTxt(siteOrigin) {
   const sitemapUrl = new URL('/sitemap.xml', `${base}/`).href
   return `User-agent: *
 Allow: /
-
-Disallow: /admin
 
 Sitemap: ${sitemapUrl}
 `

@@ -49,8 +49,8 @@ The hub highlights **browser play** on the home page; pricing and SKUs for downl
 **Why does Cobb feel different every floor?**  
 By design: sensory and tempo rules **rotate** so you re-learn sightlines and audio instead of one safe route forever.
 
-**Comments look moderated—why?**  
-The hub keeps **Comments** useful and readable: spam and abuse are filtered; scores and text are there to help players choose what to play next.
+**Where are comments stored?**  
+Reviews are served by the hub’s integrated comment API (`comment-api-pi.vercel.app`). Staff moderation uses the separate [comment admin](https://comment-web-one.vercel.app/) dashboard—not a page on this site.
 
 **Something on the site is wrong—who do I email?**  
 Use **[Contact Us](https://cobbcanmove.site/contact-us)** for broken links, accessibility, moderation, or legal mail. This is **not** every publisher’s official customer support line for third-party games.
@@ -65,7 +65,7 @@ The primary navigation appears on every page. Below, each label matches the head
 |-----------|-----|---------------------|
 | **Home** | [https://cobbcanmove.site/](https://cobbcanmove.site/) | Hub landing: flagship COBB CAN MOVE spotlight, embed, and sections for how to play, reviews, and FAQ. |
 | **More Games** | [https://cobbcanmove.site/more-games](https://cobbcanmove.site/more-games) | Curated browser-friendly titles with detail pages—horror, survival, and indie picks beyond the flagship. |
-| **Comments** | [https://cobbcanmove.site/comments](https://cobbcanmove.site/comments) | Moderated **comments and ratings** for hub games—community signal without storefront noise. |
+| **Comments** | [https://cobbcanmove.site/comments](https://cobbcanmove.site/comments) | **Comments and star ratings** for COBB CAN MOVE—community signal without storefront noise. |
 | **Download** | [https://cobbcanmove.site/download](https://cobbcanmove.site/download) | **COBB CAN MOVE** on **itch.io**: PC builds, pay-what-you-want context, and expectations before you install or donate. |
 | **Blog** | [https://cobbcanmove.site/blog](https://cobbcanmove.site/blog) | Long-form **guides** and player-facing notes: controls, coal, Cobb rules by floor, and survival-horror mindset. |
 | **Play** | [https://cobbcanmove.site/#play](https://cobbcanmove.site/#play) | Same as **Home**, scrolled to the **in-page player** so you can start immediately after the page loads. |
@@ -84,7 +84,7 @@ The primary navigation appears on every page. Below, each label matches the head
 | **Copyright** | [https://cobbcanmove.site/copyright](https://cobbcanmove.site/copyright) | Credits, third-party marks, fair-use intent, and takedown-related information. |
 | **About Us** | [https://cobbcanmove.site/about-us](https://cobbcanmove.site/about-us) | What the hub is: editorial curation and an indie portal—not a publisher substitute. |
 | **Contact Us** | [https://cobbcanmove.site/contact-us](https://cobbcanmove.site/contact-us) | Email paths for bugs, accessibility, moderation, and legal notices. |
-| **Staff (Admin)** | [https://cobbcanmove.site/admin](https://cobbcanmove.site/admin) | **Staff-only** moderation tools for pending comments; not a general player destination. |
+| **Comment admin (staff)** | [https://comment-web-one.vercel.app/](https://comment-web-one.vercel.app/) | **Staff-only** moderation for hub comments—not a general player destination. |
 
 ---
 

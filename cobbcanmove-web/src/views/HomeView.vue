@@ -63,11 +63,7 @@
               <div class="about-reviews-wrap-head">
                 <span class="about-reviews-wrap-kicker">Player scores</span>
               </div>
-              <GameReviewsSection
-                :game-id="hubMain.id"
-                :game-title="hubMain.title"
-                :preview-comment-limit="3"
-              />
+              <GameReviewsSection :game-title="hubMain.title" :preview-comment-limit="3" />
             </div>
           </aside>
         </div>
@@ -246,7 +242,6 @@ import GameEmbedWithOverlay from '@/components/GameEmbedWithOverlay.vue'
 
 /** 首页主推「COBB CAN MOVE」正文（已从 games.js 迁出；TDK 在路由 meta） */
 const hubMain = Object.freeze({
-  id: 1,
   title: 'COBB CAN MOVE',
   iframeUrl: 'https://gamaverse.com/c/f/g/cobb-can-move-1749146982/',
   description:
