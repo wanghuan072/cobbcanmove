@@ -428,10 +428,6 @@ onMounted(() => {
   border: 0;
 }
 
-.reviews-section {
-  font-family: var(--font-body);
-}
-
 .reviews-inner {
   width: 100%;
   min-width: 0;
@@ -470,7 +466,6 @@ onMounted(() => {
 
 .rc-title {
   margin: 0;
-  font-family: var(--font-body);
   font-size: 0.82rem;
   font-weight: 800;
   letter-spacing: 0.12em;
@@ -497,7 +492,6 @@ onMounted(() => {
 }
 
 .rc-avg {
-  font-family: var(--font-body);
   font-weight: 800;
   font-size: clamp(1.75rem, 4vw, 2.35rem);
   line-height: 0.9;
@@ -825,7 +819,6 @@ onMounted(() => {
 
 .reviews-title {
   margin: 0;
-  font-family: var(--font-body);
   font-size: clamp(1.65rem, 2.5vw + 1rem, 2.35rem);
   font-weight: 800;
   letter-spacing: -0.03em;
@@ -899,7 +892,6 @@ onMounted(() => {
 }
 
 .reviews-ring-num {
-  font-family: var(--font-body);
   font-weight: 800;
   font-size: clamp(1.85rem, 3vw, 2.35rem);
   letter-spacing: -0.04em;
@@ -955,7 +947,6 @@ onMounted(() => {
 
 .reviews-form-title {
   margin: 0;
-  font-family: var(--font-body);
   font-size: 1.2rem;
   font-weight: 800;
 }
@@ -1156,7 +1147,6 @@ onMounted(() => {
 .reviews-feed-title {
   margin: 0;
   flex-shrink: 0;
-  font-family: var(--font-body);
   font-size: 1.05rem;
   font-weight: 800;
   letter-spacing: -0.02em;
@@ -1204,7 +1194,6 @@ onMounted(() => {
   border-radius: 0.55rem;
   display: grid;
   place-items: center;
-  font-family: var(--font-body);
   font-weight: 800;
   font-size: 1rem;
   color: var(--color-text);

@@ -211,7 +211,7 @@ main {
 }
 
 code {
-  font-family: 'JetBrains Mono', 'SFMono-Regular', Consolas, monospace;
+  font-family: ui-monospace, 'Cascadia Code', Consolas, monospace;
   font-size: 0.92em;
   color: var(--color-accent-2);
 }

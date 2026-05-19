@@ -16,7 +16,7 @@
         <div class="hero-visual" aria-hidden="true">
           <div class="hero-frame">
             <div class="hero-grid">
-              <img src="/images/hero-img.webp" alt="Cobb is listening">
+              <img src="/images/hero-img.webp" alt="Cobb is listening" fetchpriority="high" />
             </div>
           </div>
         </div>
@@ -425,6 +425,13 @@ main {
   border-radius: 0.85rem;
 }
 
+.hero-grid img {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  border-radius: 0.85rem;
+}
+
 .hero-tag {
   position: relative;
   margin: 0;
@@ -778,13 +785,13 @@ main {
 }
 
 .faq-answer :deep(code) {
-  font-family: 'JetBrains Mono', 'SFMono-Regular', Consolas, monospace;
+  font-family: ui-monospace, 'Cascadia Code', Consolas, monospace;
   font-size: 0.92em;
   color: var(--color-accent-2);
 }
 
 code {
-  font-family: 'JetBrains Mono', 'SFMono-Regular', Consolas, monospace;
+  font-family: ui-monospace, 'Cascadia Code', Consolas, monospace;
   font-size: 0.92em;
   color: var(--color-accent-2);
 }

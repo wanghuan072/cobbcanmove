@@ -2,7 +2,7 @@
   <header class="site-header" role="banner">
     <div class="container site-header-inner">
       <RouterLink :to="{ name: 'home' }" class="site-logo" aria-label="COBB CAN MOVE hub home">
-        <img src="/images/logo.webp" alt="COBB CAN MOVE" class="site-logo-mark" aria-hidden="true" />
+        <img src="/images/logo.webp" alt="" class="site-logo-mark" aria-hidden="true" />
         <span class="site-logo-text">COBB CAN MOVE</span>
       </RouterLink>
       <button
@@ -109,7 +109,7 @@ function goHomeHash(hash) {
   font-size: 1rem;
 }
 
-.site-logo img{
+.site-logo-mark {
   width: 8rem;
   height: auto;
 }

@@ -15,17 +15,17 @@
       class="embed-overlay"
       role="presentation"
     >
-      <div class="embed-overlay-bg" aria-hidden="true">
-        <img class="embed-bg-img" :src="coverImageUrl" alt="" />
-      </div>
+      <div
+        class="embed-overlay-bg"
+        aria-hidden="true"
+        :style="{ backgroundImage: `url(${coverImageUrl})` }"
+      />
       <div class="embed-overlay-frost" aria-hidden="true" />
       <div class="embed-overlay-inner">
         <img
           class="embed-thumb"
           :src="coverImageUrl"
           :alt="coverImageAlt"
-          width="200"
-          height="200"
           loading="lazy"
         />
         <button
@@ -112,12 +112,8 @@ watch(
   position: absolute;
   inset: -12px;
   z-index: 0;
-}
-
-.embed-bg-img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+  background-size: cover;
+  background-position: center;
   transform: scale(1.08);
   filter: blur(22px) saturate(1.15);
   opacity: 0.92;
@@ -156,7 +152,6 @@ watch(
 }
 
 .embed-play {
-  font-family: var(--font-body);
   font-weight: 700;
   font-size: 0.95rem;
   letter-spacing: 0.04em;
@@ -186,7 +181,7 @@ watch(
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .embed-bg-img {
+  .embed-overlay-bg {
     filter: blur(10px) saturate(1.05);
   }
 
